@@ -1,5 +1,10 @@
 import express, { Express, Request, Response } from 'express';
 import dotenv from 'dotenv';
+import TelegramBot from 'node-telegram-bot-api';
+
+const token = process.env.TELEGRAM_BOT_TOKEN!;
+
+const bot = new TelegramBot(token, { polling: true });
 
 dotenv.config();
 
@@ -10,15 +15,20 @@ app.get('/', (req: Request, res: Response) => {
   res.send(`Express + TypeScript Server ${process.env.TEST_DATA}`);
 });
 
+app.get('/stopBot', (req: Request, res: Response) => {
+  bot.stopPolling();
+  res.send(`Bot Stopped`);
+});
+
+app.get('/startBot', (req: Request, res: Response) => {
+  bot.startPolling({ restart: true });
+  res.send(`Bot Started`);
+});
+
 app.listen(port, () => {
   console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
 });
 
-import TelegramBot from 'node-telegram-bot-api';
-
-const token = process.env.TELEGRAM_BOT_TOKEN!;
-
-const bot = new TelegramBot(token, {polling: true});
 
 // Matches "/echo [whatever]"
 bot.onText(/\/echo (.+)/, (msg, match) => {
@@ -39,5 +49,5 @@ bot.on('message', (msg) => {
   const chatId = msg.chat.id;
 
   // send a message to the chat acknowledging receipt of their message
-  bot.sendMessage(chatId, 'Received your message =)');
+  bot.sendMessage(chatId, 'Received your message =) !');
 });
