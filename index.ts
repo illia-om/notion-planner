@@ -36,11 +36,11 @@ app
   .get('/', (req: Request, res: Response) => {
     res.send(`Notion Planner App`);
   })
-  .post('/login', routeLogin(routeContext))
-  .use(middlewareAuth(routeContext))
-  .get('/test', routeTest(routeContext))
-  .get('/user', routeUser(routeContext))
-  .use('/api/bot/', routeTelegramBot(routeContext))
+  // .post('/login', routeLogin(routeContext))
+  // .use(middlewareAuth(routeContext))
+  // .get('/test', routeTest(routeContext))
+  // .get('/user', routeUser(routeContext))
+  // .use('/api/bot/', routeTelegramBot(routeContext))
   .listen(port, () => {
     console.log(`[server]: Server is running at http://localhost:${port}`);
   });
