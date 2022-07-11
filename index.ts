@@ -1,11 +1,15 @@
 import express, { Express, Request, Response } from 'express';
+import { json } from 'body-parser';
 import dotenv from 'dotenv';
+
 import TelegramBot from 'node-telegram-bot-api';
 import { Client } from '@notionhq/client';
 import { env } from 'process';
 import {
   IRouteContext,
-  routeTest
+  routeTest,
+  routeLogin,
+  middlewareAuth
 } from './src/routes'
 
 dotenv.config();
@@ -26,9 +30,12 @@ const notion = new Client({
 })
 
 app
+  .use(json())
   .get('/', (req: Request, res: Response) => {
-    res.send(`Express + TypeScript Server`);
+    res.send(`Notion Planner App`);
   })
+  .post('/login', routeLogin(routeContext))
+  .use(middlewareAuth(routeContext))
   .get('/test', routeTest(routeContext))
   .get('/stopBot', (req: Request, res: Response) => {
     bot.stopPolling();
@@ -39,11 +46,10 @@ app
     res.send(`Bot Started`);
   })
   .listen(port, () => {
-    console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
+    console.log(`[server]: Server is running at http://localhost:${port}`);
   });
 
 
-// Matches "/add [whatever]"
 bot.onText(/\/add (.+)/, async (msg, match) => {
 
   const chatId = msg.chat.id;
@@ -68,12 +74,3 @@ bot.onText(/\/add (.+)/, async (msg, match) => {
   // send back the matched "whatever" to the chat
   bot.sendMessage(chatId, `Added new task with name: ${resp}`);
 });
-
-// Listen for any kind of message. There are different kinds of
-// messages.
-// bot.on('message', (msg) => {
-//   const chatId = msg.chat.id;
-
-//   // send a message to the chat acknowledging receipt of their message
-//   bot.sendMessage(chatId, 'Received your message =) !');
-// });
