@@ -10,7 +10,8 @@ import {
   routeTest,
   routeLogin,
   middlewareAuth,
-  routeTelegramBot
+  routeTelegramBot,
+  routeUser
 } from './src/routes'
 
 dotenv.config();
@@ -38,6 +39,7 @@ app
   .post('/login', routeLogin(routeContext))
   .use(middlewareAuth(routeContext))
   .get('/test', routeTest(routeContext))
+  .get('/user', routeUser(routeContext))
   .use('/api/bot/', routeTelegramBot(routeContext))
   .listen(port, () => {
     console.log(`[server]: Server is running at http://localhost:${port}`);

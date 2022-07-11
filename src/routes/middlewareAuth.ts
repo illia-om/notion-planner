@@ -5,9 +5,9 @@ import jwt from 'jsonwebtoken';
 dotenv.config();
 
 export interface IUser {
-    readonly  username: string,
-    readonly password: 'adminpass',
-    readonly role: 'admin' | 'member'
+    readonly username: string,
+    readonly role: 'admin' | 'member',
+    readonly iat: string,
 }
 
 export const middlewareAuth: TAppRouter = (context) => {
@@ -22,7 +22,8 @@ export const middlewareAuth: TAppRouter = (context) => {
                     return res.sendStatus(403);
                 }
 
-                req.user = user as IUser;
+                // req.user = JSON.parse(user as string) as IUser;
+                req.user = user as unknown as IUser;
                 next();
             });
         } else {
