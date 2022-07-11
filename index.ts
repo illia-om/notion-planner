@@ -9,7 +9,8 @@ import {
   IRouteContext,
   routeTest,
   routeLogin,
-  middlewareAuth
+  middlewareAuth,
+  routeTelegramBot
 } from './src/routes'
 
 dotenv.config();
@@ -37,14 +38,7 @@ app
   .post('/login', routeLogin(routeContext))
   .use(middlewareAuth(routeContext))
   .get('/test', routeTest(routeContext))
-  .get('/stopBot', (req: Request, res: Response) => {
-    bot.stopPolling();
-    res.send(`Bot Stopped`);
-  })
-  .get('/startBot', (req: Request, res: Response) => {
-    bot.startPolling({ restart: true });
-    res.send(`Bot Started`);
-  })
+  .use('/api/bot/', routeTelegramBot(routeContext))
   .listen(port, () => {
     console.log(`[server]: Server is running at http://localhost:${port}`);
   });
