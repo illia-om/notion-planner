@@ -1,10 +1,9 @@
 import express, { Express, Request, Response } from 'express';
 import { json } from 'body-parser';
 import dotenv from 'dotenv';
-
 import TelegramBot from 'node-telegram-bot-api';
 import { Client } from '@notionhq/client';
-import { env } from 'process';
+import { Pool } from 'pg';
 import {
   IRouteContext,
   routeTest,
@@ -23,6 +22,10 @@ const routeContext: IRouteContext = {
   telegramBot: new TelegramBot(token, { polling: true }),
   notion: new Client({
     auth: process.env.NOTION_ACCESS_TOKEN,
+  }),
+  pool: new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: true
   })
 }
 const app: Express = express();
