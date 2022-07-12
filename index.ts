@@ -28,11 +28,12 @@ const routeContext: IRouteContext = {
     ssl: true
   })
 }
+
 const app: Express = express();
-const bot = new TelegramBot(token, { polling: true });
-const notion = new Client({
-  auth: process.env.NOTION_ACCESS_TOKEN,
-})
+// const bot = new TelegramBot(token, { polling: true });
+// const notion = new Client({
+//   auth: process.env.NOTION_ACCESS_TOKEN,
+// })
 
 app
   .use(json())
@@ -49,27 +50,27 @@ app
   });
 
 
-bot.onText(/\/add (.+)/, async (msg, match) => {
+// bot.onText(/\/add (.+)/, async (msg, match) => {
 
-  const chatId = msg.chat.id;
-  const resp = match![1]; // the captured "whatever"
-  const res = await notion.pages.create({
-    "parent": {
-      "type": "database_id",
-      "database_id": process.env.PLANNER_ID!
-    },
-    "properties": {
-      "title": {
-        "title": [
-          {
-            "text": {
-              "content": resp
-            }
-          }
-        ]
-      }
-    }
-  })
-  // send back the matched "whatever" to the chat
-  bot.sendMessage(chatId, `Added new task with name: ${resp}`);
-});
+//   const chatId = msg.chat.id;
+//   const resp = match![1]; // the captured "whatever"
+//   const res = await notion.pages.create({
+//     "parent": {
+//       "type": "database_id",
+//       "database_id": process.env.PLANNER_ID!
+//     },
+//     "properties": {
+//       "title": {
+//         "title": [
+//           {
+//             "text": {
+//               "content": resp
+//             }
+//           }
+//         ]
+//       }
+//     }
+//   })
+//   // send back the matched "whatever" to the chat
+//   bot.sendMessage(chatId, `Added new task with name: ${resp}`);
+// });
