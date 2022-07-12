@@ -25,9 +25,11 @@ const routeContext: IRouteContext = {
   }),
   pool: new Pool({
     connectionString: process.env.DATABASE_URL,
-    ssl: false
+    ssl: { rejectUnauthorized: false }
   })
 }
+
+routeContext.pool.on('connect', () => console.log('connected to db'));
 
 const app: Express = express();
 // const bot = new TelegramBot(token, { polling: true });
