@@ -27,6 +27,11 @@ export class Db {
         return this.query(`SELECT * FROM ${collectionName} WHERE username = $1`, [value]);
     }
 
+    async getRoleName(roleId: any): Promise<string | null> {
+        const { rows } = await this.query(`SELECT * FROM ${this.rolesCollectionName} WHERE role_id = $1`, [roleId]);
+        return rows[0].role_name || null;
+    }
+
     insertNotionIntegration(notionInt: INotionIntegration): Promise<QueryResult> {
         const text = `INSERT INTO ${this.notionIntegrationCollectionName}(bot_id, access_token, workspace_id, owner, workspace_name, workspace_icon, token_type, date_created) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`;
         const values = [notionInt.botId, notionInt.accessToken, notionInt.workspaceId, notionInt.owner, notionInt.workspaceName, notionInt.workspaceIcon, notionInt.tokenType, notionInt.dateCreated];
