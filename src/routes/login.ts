@@ -1,21 +1,35 @@
-import {TAppRouter} from '../types';
+import { TAppRouter } from '../types';
 import { users } from '../users';
 import jwt from 'jsonwebtoken';
+// import { query } from './../db';
 
 export const loginRoute: TAppRouter = (context) => {
-    return (req, res) => {
-        const { username, password } = req.body;
+    return async (req, res) => {
+        try {
+            const { username, password } = req.body;
+
+            if (username && password) {
+                const { rows: users } = await context.db.getUserByUsername(username);
+
+                if (users.length > 0) {
+                    const user = users[0];
+                    if (user.password === password) {
+                        const accessToken = jwt.sign({ username: user.username, roleId: user.role_id, notionIntegrationId: user.notion_integration_id }, context.env.SERVER_ACCESS_TOKEN_SECRET!);
     
-        const user = users.find(u => { return u.username === username && u.password === password });
-    
-        if (user) {
-            const accessToken = jwt.sign({ username: user.username,  role: user.role }, context.env.SERVER_ACCESS_TOKEN_SECRET!);
-    
-            res.json({
-                accessToken
-            });
-        } else {
-            res.send('Username or password incorrect');
+                        res.json({
+                            accessToken
+                        });
+                    } else {
+                        res.send('Username or password incorrect');
+                    }
+                } else {
+                    res.send('User is not registered');
+                }
+            } else {
+                res.sendStatus(401);
+            }
+        } catch (err) {
+            console.log('loginRoute ERROR: ', err);
         }
     };
 }

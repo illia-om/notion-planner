@@ -19,16 +19,13 @@ import { Db } from './src/db';
 
 dotenv.config();
 
-const token = process.env.TELEGRAM_BOT_TOKEN!;
-const port = process.env.PORT;
-
 const routeContext: IRouteContext = {
   env: process.env as Record<string, string>,
-  telegramBot: new TelegramBot(token, { polling: true }),
+  telegramBot: new TelegramBot(process.env.TELEGRAM_BOT_TOKEN!, { polling: true }),
   notion: new Client({
     auth: process.env.NOTION_ACCESS_TOKEN,
   }),
-  db: new Db()
+  db: new Db(process.env.DATABASE_URL!)
 }
 
 const app: Express = express();
@@ -47,8 +44,8 @@ app
   .use('/telegramBot/', telegramRoute(routeContext))
   .use('/test', routeTest(routeContext))
   .use('/user', routeUser(routeContext))
-  .listen(port, () => {
-    console.log(`[server]: Server is running at http://localhost:${port}`);
+  .listen(process.env.PORT, () => {
+    console.log(`[server]: Server is running at http://localhost:${process.env.PORT}`);
   });
 
 
