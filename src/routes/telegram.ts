@@ -1,12 +1,8 @@
 import { TAppRouter } from './../types';
 import { Router } from 'express';
-import dotenv from 'dotenv';
 
-dotenv.config();
-
-export const routeTelegramBot: TAppRouter = (context) => {
+export const telegramRoute: TAppRouter = (context) => {
     const router = Router();
-
     return router
         .post('/togglePulling', (req, res) => {
             if (context.telegramBot.isPolling()) {

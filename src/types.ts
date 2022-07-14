@@ -4,6 +4,7 @@ import TelegramBot from 'node-telegram-bot-api';
 import { Pool } from 'pg';
 
 export interface IRouteContext {
+  readonly env: Record<string, string>
   readonly telegramBot: TelegramBot;
   readonly notion: Client;
   readonly pool: Pool;

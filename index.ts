@@ -5,14 +5,16 @@ import TelegramBot from 'node-telegram-bot-api';
 import { Client } from '@notionhq/client';
 import { Pool } from 'pg';
 import {
-  IRouteContext,
   routeTest,
-  routeLogin,
-  middlewareAuth,
-  routeTelegramBot,
+  loginRoute,
+  telegramRoute,
   routeUser,
-  routeOAuth
-} from './src/routes'
+  notionRoute
+} from './src/routes';
+import {
+  IRouteContext
+} from './src/types';
+import { authentication } from './src/middleware';
 
 dotenv.config();
 
@@ -20,6 +22,7 @@ const token = process.env.TELEGRAM_BOT_TOKEN!;
 const port = process.env.PORT;
 
 const routeContext: IRouteContext = {
+  env: process.env as Record<string, string>,
   telegramBot: new TelegramBot(token, { polling: true }),
   notion: new Client({
     auth: process.env.NOTION_ACCESS_TOKEN,
@@ -30,25 +33,22 @@ const routeContext: IRouteContext = {
   })
 }
 
-routeContext.pool.on('connect', () => console.log('connected to db'));
-
 const app: Express = express();
-// const bot = new TelegramBot(token, { polling: true });
-// const notion = new Client({
-//   auth: process.env.NOTION_ACCESS_TOKEN,
-// })
 
 app
   .use(json())
+
   .get('/', (req: Request, res: Response) => {
     res.send(`Notion Planner App`);
   })
-  .get('/auth', routeOAuth(routeContext))
-  .post('/login', routeLogin(routeContext))
-  .use(middlewareAuth(routeContext))
-  .get('/test', routeTest(routeContext))
-  .get('/user', routeUser(routeContext))
-  .use('/api/bot/', routeTelegramBot(routeContext))
+
+  .post('/login', loginRoute(routeContext))
+  
+  .use(authentication(routeContext))
+  .use('/notion', notionRoute(routeContext))
+  .use('/telegramBot/', telegramRoute(routeContext))
+  .use('/test', routeTest(routeContext))
+  .use('/user', routeUser(routeContext))
   .listen(port, () => {
     console.log(`[server]: Server is running at http://localhost:${port}`);
   });
