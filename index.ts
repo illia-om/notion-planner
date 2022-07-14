@@ -10,7 +10,8 @@ import {
   routeLogin,
   middlewareAuth,
   routeTelegramBot,
-  routeUser
+  routeUser,
+  routeOAuth
 } from './src/routes'
 
 dotenv.config();
@@ -42,6 +43,7 @@ app
   .get('/', (req: Request, res: Response) => {
     res.send(`Notion Planner App`);
   })
+  .get('/auth', routeOAuth(routeContext))
   .post('/login', routeLogin(routeContext))
   .use(middlewareAuth(routeContext))
   .get('/test', routeTest(routeContext))
