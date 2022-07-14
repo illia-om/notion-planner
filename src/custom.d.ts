@@ -1,5 +1,5 @@
 declare namespace Express {
    export interface Request {
-      user: import('./routes/middlewareAuth').IUser
+      user: import('./middleware/authentication').IUser
    }
 }

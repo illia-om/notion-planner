@@ -1,72 +1,75 @@
 import express, { Express, Request, Response } from 'express';
 import { json } from 'body-parser';
 import dotenv from 'dotenv';
-
 import TelegramBot from 'node-telegram-bot-api';
 import { Client } from '@notionhq/client';
-import { env } from 'process';
+import { Pool } from 'pg';
 import {
-  IRouteContext,
   routeTest,
-  routeLogin,
-  middlewareAuth,
-  routeTelegramBot,
-  routeUser
-} from './src/routes'
+  loginRoute,
+  telegramRoute,
+  routeUser,
+  notionRoute
+} from './src/routes';
+import {
+  IRouteContext
+} from './src/types';
+import { authentication } from './src/middleware';
+import { Db } from './src/db';
 
 dotenv.config();
 
-const token = process.env.TELEGRAM_BOT_TOKEN!;
-const port = process.env.PORT;
-
 const routeContext: IRouteContext = {
-  telegramBot: new TelegramBot(token, { polling: true }),
+  env: process.env as Record<string, string>,
+  telegramBot: new TelegramBot(process.env.TELEGRAM_BOT_TOKEN!, { polling: true }),
   notion: new Client({
     auth: process.env.NOTION_ACCESS_TOKEN,
-  })
+  }),
+  db: new Db(process.env.DATABASE_URL!)
 }
+
 const app: Express = express();
-const bot = new TelegramBot(token, { polling: true });
-const notion = new Client({
-  auth: process.env.NOTION_ACCESS_TOKEN,
-})
 
 app
   .use(json())
+
   .get('/', (req: Request, res: Response) => {
     res.send(`Notion Planner App`);
   })
-  .post('/login', routeLogin(routeContext))
-  .use(middlewareAuth(routeContext))
-  .get('/test', routeTest(routeContext))
-  .get('/user', routeUser(routeContext))
-  .use('/api/bot/', routeTelegramBot(routeContext))
-  .listen(port, () => {
-    console.log(`[server]: Server is running at http://localhost:${port}`);
+
+  .post('/login', loginRoute(routeContext))
+  
+  .use(authentication(routeContext))
+  .use('/notion', notionRoute(routeContext))
+  .use('/telegramBot/', telegramRoute(routeContext))
+  .use('/test', routeTest(routeContext))
+  .use('/user', routeUser(routeContext))
+  .listen(process.env.PORT, () => {
+    console.log(`[server]: Server is running at http://localhost:${process.env.PORT}`);
   });
 
 
-bot.onText(/\/add (.+)/, async (msg, match) => {
+// bot.onText(/\/add (.+)/, async (msg, match) => {
 
-  const chatId = msg.chat.id;
-  const resp = match![1]; // the captured "whatever"
-  const res = await notion.pages.create({
-    "parent": {
-      "type": "database_id",
-      "database_id": process.env.PLANNER_ID!
-    },
-    "properties": {
-      "title": {
-        "title": [
-          {
-            "text": {
-              "content": resp
-            }
-          }
-        ]
-      }
-    }
-  })
-  // send back the matched "whatever" to the chat
-  bot.sendMessage(chatId, `Added new task with name: ${resp}`);
-});
+//   const chatId = msg.chat.id;
+//   const resp = match![1]; // the captured "whatever"
+//   const res = await notion.pages.create({
+//     "parent": {
+//       "type": "database_id",
+//       "database_id": process.env.PLANNER_ID!
+//     },
+//     "properties": {
+//       "title": {
+//         "title": [
+//           {
+//             "text": {
+//               "content": resp
+//             }
+//           }
+//         ]
+//       }
+//     }
+//   })
+//   // send back the matched "whatever" to the chat
+//   bot.sendMessage(chatId, `Added new task with name: ${resp}`);
+// });
