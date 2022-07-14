@@ -1,7 +1,5 @@
 import { TAppRouter } from '../types';
-import { users } from '../users';
 import jwt from 'jsonwebtoken';
-// import { query } from './../db';
 
 export const loginRoute: TAppRouter = (context) => {
     return async (req, res) => {
