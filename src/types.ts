@@ -1,13 +1,13 @@
 import type { NextFunction, Request, Response, Router } from 'express';
 import { Client } from '@notionhq/client';
 import TelegramBot from 'node-telegram-bot-api';
-import { Pool } from 'pg';
+import { Db } from './db';
 
 export interface IRouteContext {
   readonly env: Record<string, string>
   readonly telegramBot: TelegramBot;
   readonly notion: Client;
-  readonly pool: Pool;
+  readonly db: Db;
 }
 
 export type TAppRouter = (

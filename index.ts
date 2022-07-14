@@ -15,6 +15,7 @@ import {
   IRouteContext
 } from './src/types';
 import { authentication } from './src/middleware';
+import { Db } from './src/db';
 
 dotenv.config();
 
@@ -27,10 +28,7 @@ const routeContext: IRouteContext = {
   notion: new Client({
     auth: process.env.NOTION_ACCESS_TOKEN,
   }),
-  pool: new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: { rejectUnauthorized: false }
-  })
+  db: new Db()
 }
 
 const app: Express = express();
