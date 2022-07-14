@@ -22,9 +22,21 @@ export const notionRoute: TAppRouter = (context) => {
                         }
                     })
 
-                console.log(result.data);
-                // const dbClient = await context.pool.connect();
-                // const r = await dbClient.query('SELECT * FROM test_table');
+                if (result.status === 200) {
+                    console.log(result.data);
+                    const notionIntegration = {
+                        botId: result.data.bot_id,
+                        accessToken: result.data.access_token,
+                        workspaceId: result.data.workspace_id,
+                        owner: result.data.owner,
+                        workspaceName: result.data.workspace_name,
+                        workspaceIcon: result.data.workspace_icon,
+                        tokenType: result.data.token_type,
+                        dateCreated: new Date(),
+                    }
+                    const { rows } = await context.db.insertNotionIntegration(notionIntegration);
+                    console.log('db insert', rows);
+                }
                 res.json({ sucsess: true, data: 'Auth Successful' });
             } catch (err) {
                 console.log('routeOAuth ERROR: ', err);
