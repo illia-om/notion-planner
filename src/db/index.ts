@@ -32,6 +32,12 @@ export class Db {
         return rows[0].role_name || null;
     }
 
+    updateUserNotionIntegration(username: string, notionIntegrationId: string): Promise<QueryResult> {
+        const text = `UPDATE ${this.usersCollectionName} SET notion_integration_id = $1 WHERE username = $2 RETURNING *`;
+        const values = [notionIntegrationId, username];
+        return this.pool.query(text, values);
+    }
+
     insertNotionIntegration(notionInt: INotionIntegration): Promise<QueryResult> {
         const text = `INSERT INTO ${this.notionIntegrationCollectionName}(bot_id, access_token, workspace_id, owner, workspace_name, workspace_icon, token_type, date_created) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`;
         const values = [notionInt.botId, notionInt.accessToken, notionInt.workspaceId, notionInt.owner, notionInt.workspaceName, notionInt.workspaceIcon, notionInt.tokenType, notionInt.dateCreated];

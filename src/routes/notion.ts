@@ -34,8 +34,10 @@ export const notionRoute: TAppRouter = (context) => {
                         tokenType: result.data.token_type,
                         dateCreated: new Date(),
                     }
-                    const { rows } = await context.db.insertNotionIntegration(notionIntegration);
-                    console.log('db insert', rows);
+                    const { rows: insertIntegrationResults} = await context.db.insertNotionIntegration(notionIntegration);
+                    console.log('db insertIntegrationResults', insertIntegrationResults);
+                    const { rows: updateUserResults} = await context.db.updateUserNotionIntegration(req.user.username, notionIntegration.botId);
+                    console.log('db updateUserResults', updateUserResults);
                 }
                 res.json({ sucsess: true, data: 'Auth Successful' });
             } catch (err) {
