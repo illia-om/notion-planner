@@ -27,7 +27,26 @@ export const routeUser: TAppRouter = (context) => {
                 return res.sendStatus(500);
             }
         })
-        .post('/register', (req, res) => {
-
+        .post('/register', async (req, res) => {
+            try {
+                const { userId } = req;
+                console.log(userId);
+                if (typeof userId == 'string' && userId !== '') {
+                    const { rows: users } = await context.db.getUserByUsername(userId);
+                    if (users.length > 0) {
+                        return res.status(400).json({ message: 'User already registered' });
+                    }
+                    const { rows } = await context.db.registerUser(userId);
+                    return res.json({
+                        success: true,
+                        user: rows[0]
+                    });
+                } else {
+                    return res.sendStatus(401);
+                }
+            } catch (err) {
+                console.log('routeUser/register ERROR: ', err);
+                return res.sendStatus(500);
+            }
         })
 };

@@ -43,6 +43,14 @@ export class Db {
         const values = [notionInt.botId, notionInt.accessToken, notionInt.workspaceId, notionInt.owner, notionInt.workspaceName, notionInt.workspaceIcon, notionInt.tokenType, notionInt.dateCreated];
         return this.query(text, values);
     }
+
+    registerUser(userId: string): Promise<QueryResult> {
+        const text = `INSERT INTO ${this.usersCollectionName}(username role_id) VALUES($1, $2) RETURNING *`;
+        const VISITOR_ROLE_ID = '846eda3b-dbea-44ad-abc2-7ebc108ea26d';
+        const values = [userId, VISITOR_ROLE_ID];
+        return this.query(text, values);
+    }
+
     async getUserByUsername(username: string): Promise<QueryResult> {
         return this.get(this.usersCollectionName, username);
     }
