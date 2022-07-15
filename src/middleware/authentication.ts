@@ -20,14 +20,8 @@ export const authentication: TAppRouter = (context) => {
                     return res.sendStatus(403);
                 }
                 const userData = jwt.decode(token) as jwt.JwtPayload;
-                const userRole = await context.db.getRoleName(userData.roleId)
-                const user = {
-                    username: userData.username,
-                    role: userRole as string,
-                    notionIntegrationId: userData.notionIntegrationId,
-                    iat: userData.iat as number
-                }
-                req.user = user;
+                const userId = userData.userId;
+                req.userId = userId;
                 next();
             });
         } else if (state) {
@@ -38,14 +32,8 @@ export const authentication: TAppRouter = (context) => {
                     return res.sendStatus(403);
                 }
                 const userData = jwt.decode(token) as jwt.JwtPayload;
-                const userRole = await context.db.getRoleName(userData.roleId)
-                const user = {
-                    username: userData.username,
-                    role: userRole as string,
-                    notionIntegrationId: userData.notionIntegrationId,
-                    iat: userData.iat as number
-                }
-                req.user = user;
+                const userId = userData.userId;
+                req.userId = userId;
                 next();
             });
         } else {

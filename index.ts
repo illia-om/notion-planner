@@ -43,7 +43,7 @@ app
   .use('/notion', notionRoute(routeContext))
   .use('/telegramBot/', telegramRoute(routeContext))
   .use('/test', routeTest(routeContext))
-  .use('/user', routeUser(routeContext))
+  .use('/users', routeUser(routeContext))
   .listen(process.env.PORT, () => {
     console.log(`[server]: Server is running at http://localhost:${process.env.PORT}`);
   });

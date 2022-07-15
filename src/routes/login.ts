@@ -28,6 +28,7 @@ export const loginRoute: TAppRouter = (context) => {
             }
         } catch (err) {
             console.log('loginRoute ERROR: ', err);
+            return res.sendStatus(500);
         }
     };
 }
