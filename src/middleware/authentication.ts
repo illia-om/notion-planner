@@ -20,7 +20,7 @@ export const authentication: TAppRouter = (context) => {
                     return res.sendStatus(403);
                 }
                 const userData = jwt.decode(token) as jwt.JwtPayload;
-                const userId = userData.userId;
+                const userId = userData.username;
                 req.userId = userId;
                 next();
             });

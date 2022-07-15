@@ -12,7 +12,7 @@ export const loginRoute: TAppRouter = (context) => {
                 if (users.length > 0) {
                     const user = users[0];
                     if (user.password === password) {
-                        const accessToken = jwt.sign({ username: user.username, roleId: user.role_id, notionIntegrationId: user.notion_integration_id }, context.env.SERVER_ACCESS_TOKEN_SECRET!);
+                        const accessToken = jwt.sign({ username: user.username }, context.env.SERVER_ACCESS_TOKEN_SECRET!);
     
                         res.json({
                             accessToken
