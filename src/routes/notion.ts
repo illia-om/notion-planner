@@ -34,14 +34,16 @@ export const notionRoute: TAppRouter = (context) => {
                         tokenType: result.data.token_type,
                         dateCreated: new Date(),
                     }
-                    const { rows: insertIntegrationResults} = await context.db.insertNotionIntegration(notionIntegration);
+                    const { rows: insertIntegrationResults } = await context.db.insertNotionIntegration(notionIntegration);
                     console.log('db insertIntegrationResults', insertIntegrationResults);
-                    const { rows: updateUserResults} = await context.db.updateUserNotionIntegration(req.userId, notionIntegration.botId);
+                    const { rows: updateUserResults } = await context.db.updateUserNotionIntegration(req.userId, notionIntegration.botId);
                     console.log('db updateUserResults', updateUserResults);
                 }
-                res.json({ sucsess: true, data: 'Auth Successful' });
+                res.redirect(context.env.FINAL_AUTH_URL);
+                // res.json({ sucsess: true, data: 'Auth Successful' });
             } catch (err) {
                 console.log('routeOAuth ERROR: ', err);
+                res.status(500).json({ message: 'Auth Failed' })
             }
         })
 };
