@@ -15,6 +15,56 @@ export const routeUser: TAppRouter = (context) => {
                         role: userRole as string,
                         notionIntegrationId: userData[0].notion_integration_id
                     }
+                    return res.json({
+                        success: true,
+                        user: user
+                    });
+                } else {
+                    return res.status(404).json({ message: 'user not found' });
+                }
+            } catch (err) {
+                console.log('routeUser/current ERROR: ', err);
+                return res.sendStatus(500);
+            }
+        })
+        .get('/notionIntegratoin', async (req, res) => {
+            try {
+                const { rows: userData } = await context.db.getUserByUsername(req.userId);
+                if (userData.length === 1) {
+                    const userNotionIntegrationId = userData[0].notion_integration_id;
+                    if (!userNotionIntegrationId) {
+                        return res.status(404).json({ message: 'notion integration not found' });
+                    }
+                    const { rows: userNotionIntegration } = await context.db.getNotionIntegrationById(userNotionIntegrationId);
+                    console.log(userNotionIntegration[0]);
+                    return res.json({
+                        success: true,
+                        notionIntegration: userNotionIntegration[0]
+                    });
+                } else {
+                    return res.status(404).json({ message: 'user not found' });
+                }
+            } catch (err) {
+                console.log('routeUser/current ERROR: ', err);
+                return res.sendStatus(500);
+            }
+        })
+        .get('/:username', async (req, res) => {
+            //TODO: add permission check
+            try {
+                const userId = req.params.username;
+                if (!userId) {
+                    return res.sendStatus(404);
+                }
+                const { rows: userData } = await context.db.getUserByUsername(userId);
+                if (userData.length === 1) {
+                    const userRole = await context.db.getRoleName(userData[0].role_id);
+                    console.log(userData);
+                    const user = {
+                        username: userId,
+                        role: userRole as string,
+                        notionIntegrationId: userData[0].notion_integration_id
+                    }
                     res.json({
                         success: true,
                         user: user

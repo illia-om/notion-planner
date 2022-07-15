@@ -54,4 +54,8 @@ export class Db {
     async getUserByUsername(username: string): Promise<QueryResult> {
         return this.get(this.usersCollectionName, username);
     }
+    
+    async getNotionIntegrationById(botId: string): Promise<QueryResult> {
+        return this.query(`SELECT * FROM ${this.notionIntegrationCollectionName} WHERE bot_id = $1`, [botId]);
+    }
 }
