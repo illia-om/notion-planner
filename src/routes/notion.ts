@@ -36,10 +36,13 @@ export const notionRoute: TAppRouter = (context) => {
                     }
                     const { rows: insertIntegrationResults } = await context.db.insertNotionIntegration(notionIntegration);
                     console.log('db insertIntegrationResults', insertIntegrationResults);
+                    console.log('To Update: ', req.userId, notionIntegration.botId);
                     const { rows: updateUserResults } = await context.db.updateUserNotionIntegration(req.userId, notionIntegration.botId);
                     console.log('db updateUserResults', updateUserResults);
+                } else {
+                    return res.status(400).json({ message: 'Auth Failed' })
                 }
-                res.redirect(context.env.FINAL_AUTH_URL);
+                return res.redirect(context.env.FINAL_AUTH_URL);
                 // res.json({ sucsess: true, data: 'Auth Successful' });
             } catch (err) {
                 console.log('routeOAuth ERROR: ', err);
