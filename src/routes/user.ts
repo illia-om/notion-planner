@@ -39,7 +39,10 @@ export const routeUser: TAppRouter = (context) => {
                     console.log(userNotionIntegration[0]);
                     return res.json({
                         success: true,
-                        notionIntegration: userNotionIntegration[0]
+                        notionIntegration: {
+                            workspace_name: userNotionIntegration[0].workspace_name,
+                            workspace_icon: userNotionIntegration[0].workspace_icon
+                        }
                     });
                 } else {
                     return res.status(404).json({ message: 'user not found' });
