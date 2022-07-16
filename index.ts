@@ -21,7 +21,7 @@ dotenv.config();
 
 const routeContext: IRouteContext = {
   env: process.env as Record<string, string>,
-  telegramBot: new TelegramBot(process.env.TELEGRAM_BOT_TOKEN!, { polling: true }),
+  // telegramBot: new TelegramBot(process.env.TELEGRAM_BOT_TOKEN!, { polling: true }),
   notion: new Client({
     auth: process.env.NOTION_ACCESS_TOKEN,
   }),
@@ -41,7 +41,7 @@ app
   
   .use(authentication(routeContext))
   .use('/notion', notionRoute(routeContext))
-  .use('/telegramBot/', telegramRoute(routeContext))
+  // .use('/telegramBot/', telegramRoute(routeContext))
   .use('/test', routeTest(routeContext))
   .use('/users', routeUser(routeContext))
   .listen(process.env.PORT, () => {
@@ -49,7 +49,7 @@ app
   });
 
 
-// bot.onText(/\/add (.+)/, async (msg, match) => {
+// routeContext.telegramBot.onText(/\/add (.+)/, async (msg, match) => {
 
 //   const chatId = msg.chat.id;
 //   const resp = match![1]; // the captured "whatever"
