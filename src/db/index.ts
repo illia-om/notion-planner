@@ -1,5 +1,5 @@
 import { Pool, QueryResult } from 'pg';
-import type { INotionIntegration } from './../types';
+import type { INotionIntegration, ITelegramIntegration } from './../types';
 
 export class Db {
     private readonly pool: Pool;
@@ -38,6 +38,12 @@ export class Db {
         return this.pool.query(text, values);
     }
 
+    updateUserTelegramIntegration(username: string, telegramIntegrationId: string): Promise<QueryResult> {
+        const text = `UPDATE ${this.usersCollectionName} SET telegram_chat_id = $1 WHERE username = $2 RETURNING *`;
+        const values = [telegramIntegrationId, username];
+        return this.pool.query(text, values);
+    }
+
     insertNotionIntegration(notionInt: INotionIntegration): Promise<QueryResult> {
         const text = `INSERT INTO ${this.notionIntegrationCollectionName}(bot_id, access_token, workspace_id, owner, workspace_name, workspace_icon, token_type, date_created) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`;
         const values = [notionInt.botId, notionInt.accessToken, notionInt.workspaceId, notionInt.owner, notionInt.workspaceName, notionInt.workspaceIcon, notionInt.tokenType, notionInt.dateCreated];
@@ -57,5 +63,15 @@ export class Db {
     
     async getNotionIntegrationById(botId: string): Promise<QueryResult> {
         return this.query(`SELECT * FROM ${this.notionIntegrationCollectionName} WHERE bot_id = $1`, [botId]);
+    }
+
+    async getTelegramIntegrationByChatId(ChatId: string): Promise<QueryResult> {
+        return this.query(`SELECT * FROM ${this.telegramIntegrationCollectionName} WHERE user_id = $1`, [ChatId]);
+    }
+
+    insertTelegramIntegration(telegramInt: ITelegramIntegration): Promise<QueryResult> {
+        const text = `INSERT INTO ${this.telegramIntegrationCollectionName}(user_id, first_name, last_name, username) VALUES($1, $2, $3, $4) RETURNING *`;
+        const values = [telegramInt.userId, telegramInt.firstName, telegramInt.lastName, telegramInt.username];
+        return this.query(text, values);
     }
 }

@@ -15,13 +15,19 @@ import {
   IRouteContext
 } from './src/types';
 import { authentication } from './src/middleware';
+import {
+  hendleStart,
+  hendleMessage
+} from './src/telegram-bot';
 import { Db } from './src/db';
 
 dotenv.config();
 
-const routeContext: IRouteContext = {
+// const telegramBot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN!, { polling: true });
+
+const context: IRouteContext = {
   env: process.env as Record<string, string>,
-  // telegramBot: new TelegramBot(process.env.TELEGRAM_BOT_TOKEN!, { polling: true }),
+  telegramBot: new TelegramBot(process.env.TELEGRAM_BOT_TOKEN!, { polling: true }),
   notion: new Client({
     auth: process.env.NOTION_ACCESS_TOKEN,
   }),
@@ -37,39 +43,41 @@ app
     res.send(`Notion Planner App`);
   })
 
-  .post('/login', loginRoute(routeContext))
-  
-  .use(authentication(routeContext))
-  .use('/notion', notionRoute(routeContext))
-  // .use('/telegramBot/', telegramRoute(routeContext))
-  .use('/test', routeTest(routeContext))
-  .use('/users', routeUser(routeContext))
+  .post('/login', loginRoute(context))
+
+  .use(authentication(context))
+  .use('/notion', notionRoute(context))
+  // .use('/telegramBot/', telegramRoute(context))
+  .use('/test', routeTest(context))
+  .use('/users', routeUser(context))
   .listen(process.env.PORT, () => {
     console.log(`[server]: Server is running at http://localhost:${process.env.PORT}`);
   });
 
+context.telegramBot.on('message', (msg) => {
+  hendleMessage(context, { msg });
+});
 
-// routeContext.telegramBot.onText(/\/add (.+)/, async (msg, match) => {
+context.telegramBot.onText(/\/start (.+)/, async (msg, match) => {
 
-//   const chatId = msg.chat.id;
-//   const resp = match![1]; // the captured "whatever"
-//   const res = await notion.pages.create({
-//     "parent": {
-//       "type": "database_id",
-//       "database_id": process.env.PLANNER_ID!
-//     },
-//     "properties": {
-//       "title": {
-//         "title": [
-//           {
-//             "text": {
-//               "content": resp
-//             }
-//           }
-//         ]
-//       }
-//     }
-//   })
-//   // send back the matched "whatever" to the chat
-//   bot.sendMessage(chatId, `Added new task with name: ${resp}`);
-// });
+  hendleStart(context, { msg, match });
+  // const res = await notion.pages.create({
+  //   "parent": {
+  //     "type": "database_id",
+  //     "database_id": process.env.PLANNER_ID!
+  //   },
+  //   "properties": {
+  //     "title": {
+  //       "title": [
+  //         {
+  //           "text": {
+  //             "content": resp
+  //           }
+  //         }
+  //       ]
+  //     }
+  //   }
+  // })
+  // send back the matched "whatever" to the chat
+  // telegramBot.sendMessage(chatId, `Added new task with name: ${resp}`);
+});

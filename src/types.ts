@@ -5,14 +5,22 @@ import { Db } from './db';
 
 export interface IRouteContext {
 	readonly env: Record<string, string>
-	// readonly telegramBot: TelegramBot;
+	readonly telegramBot: TelegramBot;
 	readonly notion: Client;
 	readonly db: Db;
 }
 
 export type TAppRouter = (
-	routeContext: IRouteContext,
+	context: IRouteContext,
 ) => Router | ((req: Request, res: Response, next: NextFunction) => void);
+
+export type TTelegramRouter = (
+	context: IRouteContext,
+	data: {
+		msg: TelegramBot.Message,
+		match?: RegExpExecArray | null
+	}
+) => void;
 
 export interface INotionIntegration {
 	readonly botId: string;
@@ -23,4 +31,10 @@ export interface INotionIntegration {
 	readonly workspaceIcon: string;
 	readonly tokenType: string;
 	readonly dateCreated: Date;
+}
+export interface ITelegramIntegration {
+	readonly userId: string;
+	readonly firstName: string | undefined;
+	readonly lastName: string | undefined;
+	readonly username: string | undefined;
 }
