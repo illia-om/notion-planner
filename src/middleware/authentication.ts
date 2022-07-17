@@ -12,32 +12,24 @@ export const authentication: TAppRouter = (context) => {
     return (req, res, next) => {
         const authHeader = req.headers.authorization;
         const state = req.query.state;
+        let token = '';
 
         if (authHeader) {
-            const token = authHeader.split(' ')[1];
-            jwt.verify(token, context.env.SERVER_ACCESS_TOKEN_SECRET!, async (err, data) => {
-                if (err) {
-                    return res.sendStatus(403);
-                }
-                const userData = jwt.decode(token) as jwt.JwtPayload;
-                const userId = userData.username;
-                req.userId = userId;
-                next();
-            });
+            token = authHeader.split(' ')[1];
         } else if (state) {
-            const token = String(state);
-
-            jwt.verify(token, context.env.SERVER_ACCESS_TOKEN_SECRET!, async (err, data) => {
-                if (err) {
-                    return res.sendStatus(403);
-                }
-                const userData = jwt.decode(token) as jwt.JwtPayload;
-                const userId = userData.username;
-                req.userId = userId;
-                next();
-            });
+            token = String(state);
         } else {
-            res.sendStatus(401);
+            return res.sendStatus(401);
         }
+
+        jwt.verify(token, context.env.SERVER_ACCESS_TOKEN_SECRET!, async (err, data) => {
+            if (err) {
+                return res.sendStatus(403);
+            }
+            const userData = jwt.decode(token) as jwt.JwtPayload;
+            const userId = userData.username;
+            req.userId = userId;
+            next();
+        });
     }
 };
