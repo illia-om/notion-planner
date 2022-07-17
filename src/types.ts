@@ -6,7 +6,7 @@ import { Db } from './db';
 export interface IRouteContext {
 	readonly env: Record<string, string>
 	readonly telegramBot: TelegramBot;
-	readonly notion: Client;
+	// readonly notion: Client;
 	readonly db: Db;
 }
 

@@ -28,9 +28,9 @@ dotenv.config();
 const context: IRouteContext = {
   env: process.env as Record<string, string>,
   telegramBot: new TelegramBot(process.env.TELEGRAM_BOT_TOKEN!, { polling: true }),
-  notion: new Client({
-    auth: process.env.NOTION_ACCESS_TOKEN,
-  }),
+  // notion: new Client({
+  //   auth: process.env.NOTION_ACCESS_TOKEN,
+  // }),
   db: new Db(process.env.DATABASE_URL!)
 }
 
@@ -59,25 +59,5 @@ context.telegramBot.on('message', (msg) => {
 });
 
 context.telegramBot.onText(/\/start (.+)/, async (msg, match) => {
-
   hendleStart(context, { msg, match });
-  // const res = await notion.pages.create({
-  //   "parent": {
-  //     "type": "database_id",
-  //     "database_id": process.env.PLANNER_ID!
-  //   },
-  //   "properties": {
-  //     "title": {
-  //       "title": [
-  //         {
-  //           "text": {
-  //             "content": resp
-  //           }
-  //         }
-  //       ]
-  //     }
-  //   }
-  // })
-  // send back the matched "whatever" to the chat
-  // telegramBot.sendMessage(chatId, `Added new task with name: ${resp}`);
 });
