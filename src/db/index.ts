@@ -60,7 +60,7 @@ export class Db {
     async getUserByUsername(username: string): Promise<QueryResult> {
         return this.get(this.usersCollectionName, username);
     }
-    
+
     async getNotionIntegrationById(botId: string): Promise<QueryResult> {
         return this.query(`SELECT * FROM ${this.notionIntegrationCollectionName} WHERE bot_id = $1`, [botId]);
     }
@@ -73,5 +73,16 @@ export class Db {
         const text = `INSERT INTO ${this.telegramIntegrationCollectionName}(user_id, first_name, last_name, username) VALUES($1, $2, $3, $4) RETURNING *`;
         const values = [telegramInt.userId, telegramInt.firstName, telegramInt.lastName, telegramInt.username];
         return this.query(text, values);
+    }
+
+    getNotionIntegrationByTelegramUserId(telegramUserId: string): Promise<QueryResult> {
+        // const text = `SELECT * FROM ${this.usersCollectionName} INNER JOIN ${this.notionIntegrationCollectionName} ON telegram_chat_id = $1`;
+        const text = `
+        SELECT * FROM ${this.notionIntegrationCollectionName}
+        WHERE bot_id =
+        (SELECT notion_integration_id FROM ${this.usersCollectionName}
+        WHERE telegram_chat_id = $1)`;
+        const params = [telegramUserId];
+        return this.query(text, params);
     }
 }
