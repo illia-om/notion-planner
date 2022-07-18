@@ -29,7 +29,7 @@ export const hendleMessage: TTelegramRouter = async (context, { msg }) => {
                 }
               }
             })
-        context.telegramBot.sendMessage(msg.chat.id, 'Added new item to the inbox:\n' + sg.text!);
+        context.telegramBot.sendMessage(msg.chat.id, 'Added new item to the inbox:\n' + msg.text!);
     } catch (err) {
         console.log('hendleMessage ERROR: ', err);
     }
