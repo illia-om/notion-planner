@@ -76,13 +76,22 @@ export class Db {
     }
 
     getNotionIntegrationByTelegramUserId(telegramUserId: string): Promise<QueryResult> {
-        // const text = `SELECT * FROM ${this.usersCollectionName} INNER JOIN ${this.notionIntegrationCollectionName} ON telegram_chat_id = $1`;
         const text = `
         SELECT * FROM ${this.notionIntegrationCollectionName}
         WHERE bot_id =
         (SELECT notion_integration_id FROM ${this.usersCollectionName}
         WHERE telegram_chat_id = $1)`;
         const params = [telegramUserId];
+        return this.query(text, params);
+    }
+
+    getNotionIntegrationByUserId(userId: string): Promise<QueryResult> {
+        const text = `
+        SELECT * FROM ${this.notionIntegrationCollectionName}
+        WHERE bot_id =
+        (SELECT notion_integration_id FROM ${this.usersCollectionName}
+        WHERE username = $1)`;
+        const params = [userId];
         return this.query(text, params);
     }
 }

@@ -1,5 +1,6 @@
 import type { TAppRouter } from '../types';
 import { Router } from 'express'
+import { Client } from '@notionhq/client';
 import axios from 'axios';
 
 export const notionRoute: TAppRouter = (context) => {
@@ -46,7 +47,38 @@ export const notionRoute: TAppRouter = (context) => {
                 // res.json({ sucsess: true, data: 'Auth Successful' });
             } catch (err) {
                 console.log('routeOAuth ERROR: ', err);
-                res.status(500).json({ message: 'Auth Failed' })
+                res.status(500).json({ message: 'Auth Failed' });
+            }
+        })
+        .post('/addItemToInbox', async (req, res) => {
+            try {
+                const { text } = req.body;
+                const userId = req.userId
+                const { rows: notionIntegration } = await context.db.getNotionIntegrationByUserId(String(userId));
+                const token = notionIntegration[0].access_token;
+                const notion = new Client({
+                    auth: token
+                });
+                const res = await notion.pages.create({
+                    "parent": {
+                        "type": "database_id",
+                        "database_id": process.env.PLANNER_ID!
+                    },
+                    "properties": {
+                        "title": {
+                            "title": [
+                                {
+                                    "text": {
+                                        "content": text!
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                })
+            } catch(err) {
+                console.log('addItemToInbox ERROR: ', err);
+                res.status(500).json({ message: 'addItemToInbox Failed' });
             }
         })
 };
