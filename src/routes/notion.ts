@@ -59,7 +59,7 @@ export const notionRoute: TAppRouter = (context) => {
                 const notion = new Client({
                     auth: token
                 });
-                const res = await notion.pages.create({
+                const newItem = await notion.pages.create({
                     "parent": {
                         "type": "database_id",
                         "database_id": process.env.PLANNER_ID!
@@ -76,7 +76,8 @@ export const notionRoute: TAppRouter = (context) => {
                         }
                     }
                 })
-            } catch(err) {
+                res.json({ success: true, data: newItem });
+            } catch (err) {
                 console.log('addItemToInbox ERROR: ', err);
                 res.status(500).json({ message: 'addItemToInbox Failed' });
             }
