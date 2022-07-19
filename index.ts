@@ -17,7 +17,8 @@ import {
 import { authentication } from './src/middleware';
 import {
   hendleStart,
-  hendleMessage
+  hendleMessage,
+  handleCallbackQuery
 } from './src/telegram-bot';
 import { Db } from './src/db';
 
@@ -56,6 +57,10 @@ app
 
 context.telegramBot.on('message', (msg) => {
   hendleMessage(context, { msg });
+});
+
+context.telegramBot.on('callback_query', (callbackQuery) => {
+  handleCallbackQuery(context, { callbackQuery });
 });
 
 context.telegramBot.onText(/\/start (.+)/, async (msg, match) => {

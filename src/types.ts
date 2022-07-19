@@ -25,8 +25,7 @@ export type TTelegramMessageRouter = (
 export type TTelegramCallbackQueryRouter = (
 	context: IRouteContext,
 	data: {
-		msg: TelegramBot.Message,
-		match?: RegExpExecArray | null
+		callbackQuery: TelegramBot.CallbackQuery
 	}
 ) => void;
 
