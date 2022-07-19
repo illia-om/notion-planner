@@ -1,6 +1,6 @@
-import { TTelegramRouter } from './../types';
+import { TTelegramMessageRouter } from './../types';
 
-export const hendleStart: TTelegramRouter = async (context, { msg, match }) => {
+export const hendleStart: TTelegramMessageRouter = async (context, { msg, match }) => {
     try {
         console.log('hendleStart: ', match![1]);
         console.log('hendleStart: ', msg);

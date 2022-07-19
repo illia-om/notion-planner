@@ -14,7 +14,15 @@ export type TAppRouter = (
 	context: IRouteContext,
 ) => Router | ((req: Request, res: Response, next: NextFunction) => void);
 
-export type TTelegramRouter = (
+export type TTelegramMessageRouter = (
+	context: IRouteContext,
+	data: {
+		msg: TelegramBot.Message,
+		match?: RegExpExecArray | null
+	}
+) => void;
+
+export type TTelegramCallbackQueryRouter = (
 	context: IRouteContext,
 	data: {
 		msg: TelegramBot.Message,
