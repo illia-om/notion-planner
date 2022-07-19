@@ -3,10 +3,15 @@ import { Router } from 'express'
 import { Notion } from './../../services/notion';
 import { notionSettingsRoute } from './settings';
 import axios from 'axios';
+import { loadNotionIntegration } from './../../middleware';
 
 export const notionRoute: TAppRouter = (context) => {
     const router = Router();
     return router
+        .use(loadNotionIntegration(context))
+        .get('/', (req, res) => {
+            res.json({ res: req.notionIntegration });
+        })
         .use('/settings', notionSettingsRoute(context))
         .get('/auth', async (req, res) => {
             try {
@@ -36,6 +41,8 @@ export const notionRoute: TAppRouter = (context) => {
                         workspaceIcon: result.data.workspace_icon,
                         tokenType: result.data.token_type,
                         dateCreated: new Date(),
+                        plannerDatabaseId: null,
+                        planerItemTypes: null,
                     }
                     const { rows: insertIntegrationResults } = await context.db.insertNotionIntegration(notionIntegration);
                     console.log('db insertIntegrationResults', insertIntegrationResults);

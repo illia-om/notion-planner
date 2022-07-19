@@ -34,10 +34,12 @@ export interface INotionIntegration {
 	readonly accessToken: string;
 	readonly workspaceId: string;
 	readonly owner: Record<string, string>;
-	readonly workspaceName: string;
-	readonly workspaceIcon: string;
-	readonly tokenType: string;
+	readonly workspaceName: string | null;
+	readonly workspaceIcon: string | null;
+	readonly tokenType: string | null;
 	readonly dateCreated: Date;
+	readonly plannerDatabaseId: string | null;
+	readonly planerItemTypes: INotionPlannerItemTypesProperty | null;
 }
 export interface INotionPlannerItemTypesProperty {
 	readonly id: string;
