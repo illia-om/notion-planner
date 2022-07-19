@@ -1,5 +1,5 @@
 import { Pool, QueryResult } from 'pg';
-import type { INotionIntegration, ITelegramIntegration } from './../types';
+import type { INotionIntegration, ITelegramIntegration, INotionPlannerItemTypesProperty } from './../types';
 
 export class Db {
     private readonly pool: Pool;
@@ -53,6 +53,18 @@ export class Db {
             WHERE username = $2)
             RETURNING *`;
         const values = [plannerDatabaseId, username];
+        return this.pool.query(text, values);
+    }
+
+    updateNotionIntegrationPlannerItemTypes(username: string, plannerItemTypes: INotionPlannerItemTypesProperty): Promise<QueryResult> {
+        const text = `
+            UPDATE ${this.notionIntegrationCollectionName}
+            SET planer_item_types = $1 
+            WHERE bot_id =
+            (SELECT notion_integration_id FROM ${this.usersCollectionName}
+            WHERE username = $2)
+            RETURNING *`;
+        const values = [plannerItemTypes, username];
         return this.pool.query(text, values);
     }
 
