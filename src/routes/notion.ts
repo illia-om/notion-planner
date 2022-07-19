@@ -1,6 +1,7 @@
 import type { TAppRouter } from '../types';
 import { Router } from 'express'
-import { Client } from '@notionhq/client';
+import { Notion } from './../services/notion';
+
 import axios from 'axios';
 
 export const notionRoute: TAppRouter = (context) => {
@@ -56,30 +57,39 @@ export const notionRoute: TAppRouter = (context) => {
                 const userId = req.userId
                 const { rows: notionIntegration } = await context.db.getNotionIntegrationByUserId(String(userId));
                 const token = notionIntegration[0].access_token;
-                const notion = new Client({
-                    auth: token
-                });
-                const newItem = await notion.pages.create({
-                    "parent": {
-                        "type": "database_id",
-                        "database_id": process.env.PLANNER_ID!
-                    },
-                    "properties": {
-                        "title": {
-                            "title": [
-                                {
-                                    "text": {
-                                        "content": text!
-                                    }
+                const notion = new Notion(token, context.db);
+                const newItem = await notion.addItemToDatabase(process.env.PLANNER_ID!, {
+                    "title": {
+                        "title": [
+                            {
+                                "text": {
+                                    "content": text!
                                 }
-                            ]
-                        }
+                            }
+                        ]
                     }
-                })
+                });
                 res.json({ success: true, data: newItem });
             } catch (err) {
                 console.log('addItemToInbox ERROR: ', err);
                 res.status(500).json({ message: 'addItemToInbox Failed' });
+            }
+        })
+        .post('/setPlannerDatabase/:databaseId', async (req, res) => {
+            try {
+                const userId = req.userId
+                const databaseId = req.params.databaseId;
+                if (!databaseId) {
+                    res.status(401).json({message: `Don't forget to provide databaseId`});
+                }
+                const { rows: notionIntegration } = await context.db.getNotionIntegrationByUserId(String(userId));
+                const token = notionIntegration[0].access_token;
+                const notion = new Notion(token, context.db);
+                const { rows: result } = await notion.updatePlannerDatabaseId(userId, databaseId);
+                res.json({result});
+            } catch (err) {
+                console.log('setPlannerDatabase ERROR: ', err);
+                res.status(500).json({ message: 'setPlannerDatabase Failed' });
             }
         })
 };
