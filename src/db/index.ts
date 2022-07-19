@@ -44,6 +44,18 @@ export class Db {
         return this.pool.query(text, values);
     }
 
+    updateNotionIntegrationPlannerDb(username: string, plannerDatabaseId: string): Promise<QueryResult> {
+        const text = `
+            UPDATE ${this.notionIntegrationCollectionName}
+            SET planner_database_id = $1 
+            WHERE bot_id =
+            (SELECT notion_integration_id FROM ${this.usersCollectionName}
+            WHERE username = $2)
+            RETURNING *`;
+        const values = [plannerDatabaseId, username];
+        return this.pool.query(text, values);
+    }
+
     insertNotionIntegration(notionInt: INotionIntegration): Promise<QueryResult> {
         const text = `INSERT INTO ${this.notionIntegrationCollectionName}(bot_id, access_token, workspace_id, owner, workspace_name, workspace_icon, token_type, date_created) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`;
         const values = [notionInt.botId, notionInt.accessToken, notionInt.workspaceId, notionInt.owner, notionInt.workspaceName, notionInt.workspaceIcon, notionInt.tokenType, notionInt.dateCreated];
@@ -57,15 +69,15 @@ export class Db {
         return this.query(text, values);
     }
 
-    async getUserByUsername(username: string): Promise<QueryResult> {
+    getUserByUsername(username: string): Promise<QueryResult> {
         return this.get(this.usersCollectionName, username);
     }
 
-    async getNotionIntegrationById(botId: string): Promise<QueryResult> {
+    getNotionIntegrationById(botId: string): Promise<QueryResult> {
         return this.query(`SELECT * FROM ${this.notionIntegrationCollectionName} WHERE bot_id = $1`, [botId]);
     }
 
-    async getTelegramIntegrationByChatId(ChatId: string): Promise<QueryResult> {
+    getTelegramIntegrationByChatId(ChatId: string): Promise<QueryResult> {
         return this.query(`SELECT * FROM ${this.telegramIntegrationCollectionName} WHERE user_id = $1`, [ChatId]);
     }
 
