@@ -1,17 +1,16 @@
 import { Client } from '@notionhq/client';
 import { Db } from './../../db';
 import { QueryResult } from 'pg';
-import { INotionPlannerItemTypesProperty } from './../../types';
-
-export class Notion {
-    private readonly client: Client;
+import { INotionPlannerItemTypesProperty, INotionIntegration } from './../../types';
+import { NotionApi } from './notion-api';
+export class Notion extends NotionApi {
     private readonly db: Db;
+    // private readonly integration: INotionIntegration;
 
     constructor(accessToken: string, db: Db) {
-        this.client = new Client({
-            auth: accessToken,
-        });
+        super(accessToken);
         this.db = db;
+        // this.integration = integrationDetails;
     }
     async listAllDatabases() {
         const { results: resources } = await this.listAllRecources();
@@ -45,6 +44,12 @@ export class Notion {
             id: typeProperty.id,
             values: typeProperty.select.options
         };
+    }
+
+    addToInbox(plannerDatabaseId: string, text: string, typeId: string) {
+        this.addItemToDatabase(plannerDatabaseId, {
+            
+        })
     }
 
     addItemToDatabase(databaseId: string, itemProperties: any) {
