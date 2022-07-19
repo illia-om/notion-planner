@@ -1,12 +1,13 @@
-import type { TAppRouter } from '../types';
+import type { TAppRouter, INotionPlannerItemTypesProperty } from './../../types';
 import { Router } from 'express'
-import { Notion } from './../services/notion';
-
+import { Notion } from './../../services/notion';
+import { notionSettingsRoute } from './settings';
 import axios from 'axios';
 
 export const notionRoute: TAppRouter = (context) => {
     const router = Router();
     return router
+        .use('/settings', notionSettingsRoute(context))
         .get('/auth', async (req, res) => {
             try {
                 const code = req.query.code;
@@ -73,23 +74,6 @@ export const notionRoute: TAppRouter = (context) => {
             } catch (err) {
                 console.log('addItemToInbox ERROR: ', err);
                 res.status(500).json({ message: 'addItemToInbox Failed' });
-            }
-        })
-        .post('/setPlannerDatabase/:databaseId', async (req, res) => {
-            try {
-                const userId = req.userId
-                const databaseId = req.params.databaseId;
-                if (!databaseId) {
-                    res.status(401).json({message: `Don't forget to provide databaseId`});
-                }
-                const { rows: notionIntegration } = await context.db.getNotionIntegrationByUserId(String(userId));
-                const token = notionIntegration[0].access_token;
-                const notion = new Notion(token, context.db);
-                const { rows: result } = await notion.updatePlannerDatabaseId(userId, databaseId);
-                res.json({result});
-            } catch (err) {
-                console.log('setPlannerDatabase ERROR: ', err);
-                res.status(500).json({ message: 'setPlannerDatabase Failed' });
             }
         })
 };
