@@ -39,6 +39,16 @@ export interface INotionIntegration {
 	readonly tokenType: string;
 	readonly dateCreated: Date;
 }
+export interface INotionPlannerItemTypesProperty {
+	readonly id: string;
+	readonly values: INotoinPlannerItemTypeValue[];
+}
+
+export interface INotoinPlannerItemTypeValue {
+	readonly id: string,
+	readonly name: string,
+	readonly color: string
+}
 export interface ITelegramIntegration {
 	readonly userId: string;
 	readonly firstName: string | undefined;
