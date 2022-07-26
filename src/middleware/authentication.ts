@@ -1,13 +1,6 @@
 import type { TAppRouter } from '../types';
 import jwt from 'jsonwebtoken';
 
-export interface IUser {
-    readonly username: string,
-    readonly role: string,
-    readonly notionIntegrationId: string | null,
-    readonly iat: number
-}
-
 export const authentication: TAppRouter = (context) => {
     return async (req, res, next) => {
         try {

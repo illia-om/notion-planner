@@ -1,18 +1,13 @@
-import type { TAppRouter, INotionPlannerItemTypesProperty } from './../../types';
+import type { TAppRouter } from './../../types';
 import { Router } from 'express'
 import { Notion } from './../../services/notion';
 import { notionSettingsRoute } from './settings';
 import axios from 'axios';
-import { loadNotionIntegration } from './../../middleware';
+import { loadNotionIntegration, loadUser } from './../../middleware';
 
 export const notionRoute: TAppRouter = (context) => {
     const router = Router();
     return router
-        .use(loadNotionIntegration(context))
-        .get('/', (req, res) => {
-            res.json({ res: req.notionIntegration });
-        })
-        .use('/settings', notionSettingsRoute(context))
         .get('/auth', async (req, res) => {
             try {
                 const code = req.query.code;
@@ -33,21 +28,15 @@ export const notionRoute: TAppRouter = (context) => {
                 if (result.status === 200) {
                     console.log(result.data);
                     const notionIntegration = {
-                        botId: result.data.bot_id,
-                        accessToken: result.data.access_token,
-                        workspaceId: result.data.workspace_id,
-                        owner: result.data.owner,
-                        workspaceName: result.data.workspace_name,
-                        workspaceIcon: result.data.workspace_icon,
-                        tokenType: result.data.token_type,
-                        dateCreated: new Date(),
-                        plannerDatabaseId: null,
-                        planerItemTypes: null,
+                        ...result.data,
+                        date_created: new Date(),
+                        planner_database_id: null,
+                        planer_item_types: null,
                     }
-                    const { rows: insertIntegrationResults } = await context.db.insertNotionIntegration(notionIntegration);
+                    const insertIntegrationResults = await context.db.notionIntegration.insert(notionIntegration);
                     console.log('db insertIntegrationResults', insertIntegrationResults);
                     console.log('To Update: ', req.userId, notionIntegration.botId);
-                    const { rows: updateUserResults } = await context.db.updateUserNotionIntegration(req.userId, notionIntegration.botId);
+                    const updateUserResults = await context.db.users.saveNotionConnection(req.user.username, notionIntegration.bot_id);
                     console.log('db updateUserResults', updateUserResults);
                 } else {
                     return res.status(400).json({ message: 'Auth Failed' })
@@ -59,13 +48,15 @@ export const notionRoute: TAppRouter = (context) => {
                 res.status(500).json({ message: 'Auth Failed' });
             }
         })
+        .use(loadUser(context), loadNotionIntegration(context))
+        .get('/', (req, res) => {
+            res.json({ res: req.notionIntegration });
+        })
+        .use('/settings', notionSettingsRoute(context))
         .post('/addItemToInbox', async (req, res) => {
             try {
                 const { text } = req.body;
-                const userId = req.userId
-                const { rows: notionIntegration } = await context.db.getNotionIntegrationByUserId(String(userId));
-                const token = notionIntegration[0].access_token;
-                const notion = new Notion(token, context.db);
+                const notion = new Notion({ integration: req.notionIntegration, db: context.db });
                 const newItem = await notion.addItemToDatabase(process.env.PLANNER_ID!, {
                     "title": {
                         "title": [

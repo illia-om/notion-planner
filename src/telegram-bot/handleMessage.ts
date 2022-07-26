@@ -1,7 +1,7 @@
 import { TTelegramMessageRouter } from './../types';
 import { Client } from '@notionhq/client';
 
-export const hendleMessage: TTelegramMessageRouter = async (context, { msg }) => {
+export const hendleMessage: TTelegramMessageRouter = async (telegram, { msg }) => {
   try {
     if (msg.entities && msg.entities[0].type === 'bot_command') {
       return;
@@ -28,41 +28,18 @@ export const hendleMessage: TTelegramMessageRouter = async (context, { msg }) =>
       ],
     ]
     if (!msg.text) {
-      context.telegramBot.sendMessage(msg.chat.id, `Don't get what you mean...\nplease use text message to add items to the inbox`);
+      telegram.bot.sendMessage(msg.chat.id, `Don't get what you mean...\nplease use text message to add items to the inbox`);
       return;
     }
-    const replyMessage = await context.telegramBot.sendMessage(msg.chat.id, `Adding new item\n*"${msg.text}"*\nChoose a type:`, {
+    const replyMessage = await telegram.bot.sendMessage(msg.chat.id, `Adding new item\n*"${msg.text}"*\nChoose a type:`, {
       parse_mode: 'Markdown'
     });
-    await context.telegramBot.editMessageReplyMarkup({
+    await telegram.bot.editMessageReplyMarkup({
       inline_keyboard: replyMarkupKeyboard
     }, {
       chat_id: replyMessage.chat.id,
       message_id: replyMessage.message_id
     });
-    // await context.telegramBot.sendMessage(msg.chat.id, 'HI');
-    // const { rows: notionIntegration } = await context.db.getNotionIntegrationByTelegramUserId(String(msg.chat.id));
-    // const token = notionIntegration[0].access_token;
-    // const notion = new Client({
-    //     auth: token
-    // });
-    // const res = await notion.pages.create({
-    //       "parent": {
-    //         "type": "database_id",
-    //         "database_id": process.env.PLANNER_ID!
-    //       },
-    //       "properties": {
-    //         "title": {
-    //           "title": [
-    //             {
-    //               "text": {
-    //                 "content": msg.text!
-    //               }
-    //             }
-    //           ]
-    //         }
-    //       }
-    //     })
   } catch (err) {
     console.log('hendleMessage ERROR: ', err);
   }

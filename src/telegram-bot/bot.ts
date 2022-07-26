@@ -25,6 +25,7 @@ export class Telegram {
     locale: TLocale;
     language: BotLanguage;
     user?: IUser;
+    telegramUser?: object;
     notion?: Notion
 
     constructor(options: TTelegramOptions) {
@@ -35,6 +36,10 @@ export class Telegram {
         this.language = new BotLanguage(this.locale);
     }
 
+    login(req: Message | CallbackQuery) {
+
+    }
+
     async withUser(req: Message | CallbackQuery): Promise<boolean> {
         try {
             const telegramUserId = extractTelegramUserId(req);
@@ -43,7 +48,7 @@ export class Telegram {
             }
             const users = await this.db.users.getByTelegramConnection(telegramUserId);
             if (!users || users.length !== 1) {
-                this.bot.sendMessage(telegramUserId, this.language.say('errorMessage'));
+                this.bot.sendMessage(telegramUserId, this.language.say('loginError'));
                 return false;
             }
             this.user = users[0];

@@ -1,43 +1,28 @@
-import { Client } from '@notionhq/client';
 import { Db } from './../../db';
 import { QueryResult } from 'pg';
-import { INotionPlannerItemTypesProperty, INotionIntegration } from './../../types';
+import { INotionPlannerItemTypesProperty, INotionIntegration } from './../../db/NotionIntegrationTable';
 import { NotionApi } from './notion-api';
+
+interface INotionServiceOptions {
+    integration: INotionIntegration,
+    db: Db
+}
 export class Notion extends NotionApi {
     private readonly db: Db;
-    // private readonly integration: INotionIntegration;
+    private readonly integration: INotionIntegration;
 
-    constructor(accessToken: string, db: Db) {
-        super(accessToken);
-        this.db = db;
-        // this.integration = integrationDetails;
-    }
-    async listAllDatabases() {
-        const { results: resources } = await this.listAllRecources();
-        return resources.filter(resource => resource.object === 'database');
+    constructor(options: INotionServiceOptions) {
+        super(options.integration.access_token);
+        this.db = options.db
+        this.integration = options.integration;
     }
 
-    listAllRecources() {
-        return this.client.search({});
-    }
-
-    getDatabase(databaseId: string) {
-        return this.client.databases.retrieve({
-            database_id: databaseId
-        })
-    }
-
-    async getPlannerItemTypes(plannerDatabaseId: string) {
-        const planner = await this.getDatabase(plannerDatabaseId);
-        const parsePropertyName = (propertyName: string): string => propertyName.toLocaleLowerCase().trim();
-
-        const properties = Object.keys(planner.properties).map(propertyName => ({ id: propertyName, parsedName: parsePropertyName(propertyName) }));
-        const typePropertyId = properties.find(property => property.parsedName === 'type');
-        if (!typePropertyId) {
+    async getPlannerItemTypes() {
+        if (!this.integration.planner_database_id) {
             return undefined;
         }
-        const typeProperty = planner.properties[typePropertyId.id];
-        if (typeProperty.type !== 'select') {
+        const typeProperty = await this.getPropertyByName(this.integration.planner_database_id, 'type');
+        if (typeProperty?.type !== 'select') {
             return undefined;
         }
         return {
@@ -46,27 +31,25 @@ export class Notion extends NotionApi {
         };
     }
 
-    addToInbox(plannerDatabaseId: string, text: string, typeId: string) {
-        this.addItemToDatabase(plannerDatabaseId, {
-            
-        })
+    addToInbox(text: string, typeId: string) {
+        if (!this.integration.planner_database_id) {
+            return undefined;
+        }
+        const typeProperty = {
+
+        }
+        this.addItemToDatabase(this.integration.planner_database_id, typeProperty)
     }
 
-    addItemToDatabase(databaseId: string, itemProperties: any) {
-        return this.client.pages.create({
-            parent: {
-                type: 'database_id',
-                database_id: databaseId
-            },
-            properties: itemProperties
-        })
+    async updatePlannerDatabaseId(databaseId: string) {
+        return this.db.notionIntegration.update(this.integration.bot_id, {
+            planner_database_id: databaseId
+        });
     }
 
-    updatePlannerDatabaseId(userId: string, databaseId: string): Promise<QueryResult> {
-        return this.db.updateNotionIntegrationPlannerDb(userId, databaseId);
-    }
-
-    updatePlannerItemTypes(userId: string, itemTypes: INotionPlannerItemTypesProperty): Promise<QueryResult> {
-        return this.db.updateNotionIntegrationPlannerItemTypes(userId, itemTypes);
+    updatePlannerItemTypes(itemTypes: INotionPlannerItemTypesProperty) {
+        return this.db.notionIntegration.update(this.integration.bot_id, {
+            planer_item_types: itemTypes
+        });
     }
 }

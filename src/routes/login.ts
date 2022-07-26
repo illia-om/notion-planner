@@ -7,10 +7,9 @@ export const loginRoute: TAppRouter = (context) => {
             const { username, password } = req.body;
 
             if (username && password) {
-                const { rows: users } = await context.db.getUserByUsername(username);
+                const user = await context.db.users.getWithPassword(username);
 
-                if (users.length > 0) {
-                    const user = users[0];
+                if (user) {
                     if (user.password === password) {
                         const accessToken = jwt.sign({ username: user.username }, context.env.SERVER_ACCESS_TOKEN_SECRET!);
     

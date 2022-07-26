@@ -1,56 +1,50 @@
 import type { TAppRouter } from '../types';
 import { Router } from 'express';
+import { loadUser, loadNotionIntegration } from '../middleware';
 
 export const routeUser: TAppRouter = (context) => {
     const router = Router();
     return router
-        .get('/current', async (req, res) => {
+        .post('/register', async (req, res) => {
             try {
-                const { rows: userData } = await context.db.getUserByUsername(req.userId);
-                if (userData.length === 1) {
-                    const userRole = await context.db.getRoleName(userData[0].role_id);
-                    console.log(userData);
-                    const user = {
-                        username: req.userId,
-                        role: userRole as string,
-                        notionIntegrationId: userData[0].notion_integration_id
+                const { userId } = req;
+                console.log(userId);
+                if (typeof userId == 'string' && userId !== '') {
+                    const user = await context.db.users.get(userId);
+                    if (user) {
+                        return res.status(400).json({ message: 'User already registered' });
+                    }
+                    const createdUser = await context.db.users.createUser(userId);
+                    if (!createdUser) {
+                        return res.status(401).json({ message: 'regiser failed' });
                     }
                     return res.json({
                         success: true,
-                        user: user
+                        user: createdUser
                     });
                 } else {
-                    return res.status(404).json({ message: 'user not found' });
+                    return res.sendStatus(401);
                 }
             } catch (err) {
-                console.log('routeUser/current ERROR: ', err);
+                console.log('routeUser/register ERROR: ', err);
                 return res.sendStatus(500);
             }
         })
-        .get('/notionIntegratoin', async (req, res) => {
-            try {
-                const { rows: userData } = await context.db.getUserByUsername(req.userId);
-                if (userData.length === 1) {
-                    const userNotionIntegrationId = userData[0].notion_integration_id;
-                    if (!userNotionIntegrationId) {
-                        return res.status(404).json({ message: 'notion integration not found' });
-                    }
-                    const { rows: userNotionIntegration } = await context.db.getNotionIntegrationById(userNotionIntegrationId);
-                    console.log(userNotionIntegration[0]);
-                    return res.json({
-                        success: true,
-                        notionIntegration: {
-                            workspace_name: userNotionIntegration[0].workspace_name,
-                            workspace_icon: userNotionIntegration[0].workspace_icon
-                        }
-                    });
-                } else {
-                    return res.status(404).json({ message: 'user not found' });
+        .use(loadUser(context))
+        .get('/current', async (req, res) => {
+            return res.json({
+                success: true,
+                user: req.user
+            });
+        })
+        .get('/notionIntegratoin', loadNotionIntegration(context), async (req, res) => {
+            return res.json({
+                success: true,
+                notionIntegration: {
+                    workspace_name: req.notionIntegration.workspace_name,
+                    workspace_icon: req.notionIntegration.workspace_icon
                 }
-            } catch (err) {
-                console.log('routeUser/current ERROR: ', err);
-                return res.sendStatus(500);
-            }
+            });
         })
         .get('/:username', async (req, res) => {
             //TODO: add permission check
@@ -59,46 +53,23 @@ export const routeUser: TAppRouter = (context) => {
                 if (!userId) {
                     return res.sendStatus(404);
                 }
-                const { rows: userData } = await context.db.getUserByUsername(userId);
-                if (userData.length === 1) {
-                    const userRole = await context.db.getRoleName(userData[0].role_id);
-                    console.log(userData);
-                    const user = {
+                const user = await context.db.users.get(userId);
+                if (user) {
+                    const userRole = await context.db.roles.getName(user.role_id);
+                    const userData = {
                         username: userId,
                         role: userRole as string,
-                        notionIntegrationId: userData[0].notion_integration_id
+                        notionIntegrationId: user.notion_integration_id
                     }
                     res.json({
                         success: true,
-                        user: user
+                        user: userData
                     });
                 } else {
                     res.sendStatus(404);
                 }
             } catch (err) {
                 console.log('routeUser/current ERROR: ', err);
-                return res.sendStatus(500);
-            }
-        })
-        .post('/register', async (req, res) => {
-            try {
-                const { userId } = req;
-                console.log(userId);
-                if (typeof userId == 'string' && userId !== '') {
-                    const { rows: users } = await context.db.getUserByUsername(userId);
-                    if (users.length > 0) {
-                        return res.status(400).json({ message: 'User already registered' });
-                    }
-                    const { rows } = await context.db.registerUser(userId);
-                    return res.json({
-                        success: true,
-                        user: rows[0]
-                    });
-                } else {
-                    return res.sendStatus(401);
-                }
-            } catch (err) {
-                console.log('routeUser/register ERROR: ', err);
                 return res.sendStatus(500);
             }
         })

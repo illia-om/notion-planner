@@ -25,6 +25,12 @@ const PHRASES: TPhrases = {
     errorMessage: {
         en: 'Something went wrong...'
     },
+    loginError: {
+        en: `You are not logged in 😕\nPlease visit our website to create an account.\nhttps://illiaom.editorx.io/notion-planner/`
+    },
+    notLoggerIn: {
+        en: `You are not logged in 😕\nPlease visit our website to create an account.\nhttps://illiaom.editorx.io/notion-planner/`
+    },
     noNotionConnection: {
         en: `You don't have notion integration installed.\nPlease visit our website to continue.\nhttps://illiaom.editorx.io/notion-planner/`
     }
