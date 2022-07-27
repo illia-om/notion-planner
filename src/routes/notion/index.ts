@@ -53,6 +53,20 @@ export const notionRoute: TAppRouter = (context) => {
             res.json({ res: req.notionIntegration });
         })
         .use('/settings', notionSettingsRoute(context))
+        .get('/databases', async (req, res) => {
+            const notion = new Notion({ integration: req.notionIntegration, db: context.db });
+            const notionDatabases = await notion.listAllDatabases();
+            res.json(notionDatabases)
+        })
+        .get('/database/:id', async (req, res) => {
+            const id = req.params.id;
+            if (!id) {
+                res.sendStatus(404);
+            }
+            const notion = new Notion({ integration: req.notionIntegration, db: context.db });
+            const notionDatabases = await notion.getDatabase(id);
+            res.json(notionDatabases)
+        })
         .post('/addItemToInbox', async (req, res) => {
             try {
                 const { text } = req.body;
