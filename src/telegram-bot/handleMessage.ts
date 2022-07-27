@@ -6,6 +6,11 @@ export const hendleMessage: TTelegramMessageRouter = async (telegram, { msg }) =
     if (msg.entities && msg.entities[0].type === 'bot_command') {
       return;
     }
+    const isNotionLoaded = await telegram.withNotion(msg);
+    if (!isNotionLoaded) {
+      return;
+    }
+    
     const replyMarkupKeyboard = [
       [
         {
