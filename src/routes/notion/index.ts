@@ -37,19 +37,19 @@ export const notionRoute: TAppRouter = (context) => {
                     const insertIntegrationResults = await context.db.notionIntegration.insert(notionIntegration);
                     console.log('db insertIntegrationResults', insertIntegrationResults);
                     console.log('To Update: ', req.userId, notionIntegration.bot_id);
-                    const updateUserResults = await context.db.users.saveNotionConnection(req.user.username, notionIntegration.bot_id);
+                    const updateUserResults = await context.db.users.saveNotionConnection(req.userId, notionIntegration.bot_id);
                     console.log('db updateUserResults', updateUserResults);
                     // if (insertIntegrationResults) {
-                        const notion = new Notion({ integration: notionIntegration, db: context.db });
-                        const allDb = notion.listAllDatabases();
-                        const plannerDb = notion.listAllDatabases();
+                    const notion = new Notion({ integration: notionIntegration, db: context.db });
+                    const allDb = await notion.listAllDatabases();
                     // }
-                    res.json({ sucsess: true, data: {
-                        insertIntegrationResults,
-                        updateUserResults,
-                        allDb,
-
-                    } });
+                    res.json({
+                        sucsess: true, data: {
+                            insertIntegrationResults,
+                            updateUserResults,
+                            allDb
+                        }
+                    });
                 } else {
                     return res.status(400).json({ message: 'Auth Failed' })
                 }
