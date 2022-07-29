@@ -10,8 +10,8 @@ export interface INotionIntegration {
 	readonly workspace_icon: string | null;
 	readonly token_type: string | null;
 	readonly date_created: Date;
-	readonly planner_database_id: string | null;
-	readonly planer_item_types: INotionPlannerItemTypesProperty | null;
+	planner_database_id: string | null;
+	planer_item_types: INotionPlannerItemTypesProperty | null;
 }
 
 export interface INotionPlannerItemTypesProperty {

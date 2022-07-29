@@ -4,6 +4,7 @@ import { Notion } from './../../services/notion';
 import { notionSettingsRoute } from './settings';
 import axios from 'axios';
 import { loadNotionIntegration, loadUser } from './../../middleware';
+import { Client } from '@notionhq/client';
 
 export const notionRoute: TAppRouter = (context) => {
     const router = Router();
@@ -38,11 +39,21 @@ export const notionRoute: TAppRouter = (context) => {
                     console.log('To Update: ', req.userId, notionIntegration.botId);
                     const updateUserResults = await context.db.users.saveNotionConnection(req.user.username, notionIntegration.bot_id);
                     console.log('db updateUserResults', updateUserResults);
+                    // if (insertIntegrationResults) {
+                        const notion = new Notion({ integration: notionIntegration, db: context.db });
+                        const allDb = notion.listAllDatabases();
+                        const plannerDb = notion.listAllDatabases();
+                    // }
+                    res.json({ sucsess: true, data: {
+                        insertIntegrationResults,
+                        updateUserResults,
+                        allDb,
+                        
+                    } });
                 } else {
                     return res.status(400).json({ message: 'Auth Failed' })
                 }
-                return res.redirect(context.env.FINAL_AUTH_URL);
-                // res.json({ sucsess: true, data: 'Auth Successful' });
+                // return res.redirect(context.env.FINAL_AUTH_URL);
             } catch (err) {
                 console.log('routeOAuth ERROR: ', err);
                 res.status(500).json({ message: 'Auth Failed' });
