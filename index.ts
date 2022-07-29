@@ -55,11 +55,7 @@ app
   .get('/', (req: Request, res: Response) => {
     res.send(`Notion Planner App`);
   })
-  .post('/webhook', (req, res) => {
-    const body = req.body;
-    console.log('webhook: ', body);
-    res.sendStatus(200);
-  })
+
   .post('/login', loginRoute(context))
 
   .use(authentication(context))
