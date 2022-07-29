@@ -34,20 +34,22 @@ export const notionRoute: TAppRouter = (context) => {
                         planner_database_id: null,
                         planer_item_types: null,
                     }
-                    const insertIntegrationResults = await context.db.notionIntegration.insert(notionIntegration);
-                    console.log('db insertIntegrationResults', insertIntegrationResults);
-                    console.log('To Update: ', req.userId, notionIntegration.bot_id);
-                    const updateUserResults = await context.db.users.saveNotionConnection(req.userId, notionIntegration.bot_id);
-                    console.log('db updateUserResults', updateUserResults);
+                    const existongNotionIntegration = await context.db.notionIntegration.get(notionIntegration.bot_id);
+                    if (!existongNotionIntegration) {
+                        const insertIntegrationResults = await context.db.notionIntegration.insert(notionIntegration);
+                        console.log('db insertIntegrationResults', insertIntegrationResults);
+                        console.log('To Update: ', req.userId, notionIntegration.bot_id);
+                        const updateUserResults = await context.db.users.saveNotionConnection(req.userId, notionIntegration.bot_id);
+                        console.log('db updateUserResults', updateUserResults);
+
+                    }
                     // if (insertIntegrationResults) {
                     const notion = new Notion({ integration: notionIntegration, db: context.db });
-                    const allDb = await notion.listAllDatabases();
+                    const plannerDb = await notion.determinePlannerDatabeseId();
                     // }
                     res.json({
                         sucsess: true, data: {
-                            insertIntegrationResults,
-                            updateUserResults,
-                            allDb
+                            plannerDb
                         }
                     });
                 } else {

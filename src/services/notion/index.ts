@@ -17,14 +17,13 @@ export class Notion extends NotionApi {
         this.integration = options.integration;
     }
 
-    // async determinePlannerDatabeseId() {
-    //     const databases = await this.listAllDatabases();
-    //     const plannedDb = databases.find(database => {
-    //         if (database.object === 'database') {
-    //             database
-    //         }
-    //     })
-    // }
+    async determinePlannerDatabeseId() {
+        const databases = await this.listAllDatabases() as any[];
+        const plannedDb = databases.find(database => {
+            return database.title[0].plain_text.toLowerCase() === 'planner';
+        })
+        return plannedDb;
+    }
 
     async getPlannerItemTypes() {
         if (!this.integration.planner_database_id) {
@@ -56,7 +55,7 @@ export class Notion extends NotionApi {
             planner_database_id: databaseId
         });
     }
-    
+
     updatePlannerItemTypes(itemTypes: INotionPlannerItemTypesProperty) {
         this.integration.planer_item_types = itemTypes;
         return this.db.notionIntegration.update(this.integration.bot_id, {
