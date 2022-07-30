@@ -14,7 +14,8 @@ export const hendleStart: TTelegramMessageRouter = async (telegram, { msg, match
                 telegram.bot.sendMessage(msg.chat.id, 'You already loggedin');
             } else {
                 const telegramUser = await telegram.db.telegramIntegration.get(String(msg.chat.id));
-                if (telegramUser.length > 0) {
+                console.log(telegramUser);
+                if (telegramUser) {
                     telegram.bot.sendMessage(msg.chat.id, 'You did something wrong...');
                     return;
                 }
