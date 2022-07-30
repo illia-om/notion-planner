@@ -1,6 +1,7 @@
 import type { TAppRouter } from '../types';
 import { Router } from 'express';
 import { loadUser, loadNotionIntegration } from '../middleware';
+import { Notion } from '../services/notion';
 
 export const routeUser: TAppRouter = (context) => {
     const router = Router();
@@ -38,11 +39,28 @@ export const routeUser: TAppRouter = (context) => {
             });
         })
         .get('/notionIntegratoin', loadNotionIntegration(context), async (req, res) => {
+            const notion = new Notion({ integration: req.notionIntegration, db: context.db });
+            if(!req.notionIntegration.planner_database_id) {
+                return res.json({
+                    success: true,
+                    notionIntegration: {
+                        workspace_name: req.notionIntegration.workspace_name,
+                        workspace_icon: req.notionIntegration.workspace_icon,
+                        planner: undefined
+                    }
+                });
+            }
+            const plannerDb = await notion.getDatabase(req.notionIntegration.planner_database_id!) as any;
+            const plannerTitle = plannerDb.title[0].plain_text;
             return res.json({
                 success: true,
                 notionIntegration: {
                     workspace_name: req.notionIntegration.workspace_name,
-                    workspace_icon: req.notionIntegration.workspace_icon
+                    workspace_icon: req.notionIntegration.workspace_icon,
+                    planner: {
+                        databaseName: plannerTitle,
+                        types: req.notionIntegration.planer_item_types?.values.map(value => value.name) 
+                    }
                 }
             });
         })
