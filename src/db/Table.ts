@@ -55,7 +55,7 @@ export class PgTable {
         return this.request(text, params);
     }
 
-    update(id: typeof this.primaryKey, item: Record<string, string | object>) {
+    update(id: typeof this.primaryKey, item: Record<string, string | object | null>) {
         const fieldNames = Object.keys(item);
         const fieldValues = fieldNames.map(fieldName => item[fieldName])
         const fieldsString = fieldNames.map((fieldName, index) => `${fieldName} = $${index + 2}`).join(', ');

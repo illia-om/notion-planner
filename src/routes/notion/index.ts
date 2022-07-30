@@ -42,6 +42,11 @@ export const notionRoute: TAppRouter = (context) => {
                         const updateUserResults = await context.db.users.saveNotionConnection(req.userId, notionIntegration.bot_id);
                         console.log('db updateUserResults', updateUserResults);
 
+                    } else {
+                        await context.db.notionIntegration.update(existongNotionIntegration.bot_id, {
+                            planner_database_id: null,
+                            planer_item_types: null
+                        });
                     }
                     const notion = new Notion({ integration: notionIntegration, db: context.db });
                     const plannerDatabaseSetup = await notion.determinePlannerDatabese();
