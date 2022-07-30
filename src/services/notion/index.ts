@@ -1,5 +1,4 @@
 import { Db } from './../../db';
-import { QueryResult } from 'pg';
 import { INotionPlannerItemTypesProperty, INotionIntegration } from './../../db/NotionIntegrationTable';
 import { NotionApi } from './notion-api';
 
@@ -17,15 +16,24 @@ export class Notion extends NotionApi {
         this.integration = options.integration;
     }
 
-    async determinePlannerDatabeseId() {
+    async determinePlannerDatabese() {
         const databases = await this.listAllDatabases() as any[];
         const plannedDb = databases.find(database => {
             return database.title[0].plain_text.toLowerCase() === 'planner';
         })
-        return plannedDb;
+        if (plannedDb) {
+            await this.updatePlannerDatabaseId(plannedDb.id);
+            const types = await this.getPlannerItemTypes();
+            if (types) {
+                await this.updatePlannerItemTypes(types);
+                return true;
+            }
+            return false;
+        }
+        return false;
     }
 
-    async getPlannerItemTypes() {
+    async getPlannerItemTypes(): Promise<INotionPlannerItemTypesProperty | undefined> {
         if (!this.integration.planner_database_id) {
             return undefined;
         }

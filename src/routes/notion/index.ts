@@ -43,13 +43,11 @@ export const notionRoute: TAppRouter = (context) => {
                         console.log('db updateUserResults', updateUserResults);
 
                     }
-                    // if (insertIntegrationResults) {
                     const notion = new Notion({ integration: notionIntegration, db: context.db });
-                    const plannerDb = await notion.determinePlannerDatabeseId();
-                    // }
+                    const plannerDatabaseSetup = await notion.determinePlannerDatabese();
                     res.json({
                         sucsess: true, data: {
-                            plannerDb
+                            plannerDatabaseSetup
                         }
                     });
                 } else {
