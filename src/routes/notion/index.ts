@@ -50,15 +50,15 @@ export const notionRoute: TAppRouter = (context) => {
                     }
                     const notion = new Notion({ integration: notionIntegration, db: context.db });
                     const plannerDatabaseSetup = await notion.determinePlannerDatabese();
-                    res.json({
-                        sucsess: true, data: {
-                            plannerDatabaseSetup
-                        }
-                    });
+                    // res.json({
+                    //     sucsess: true, data: {
+                    //         plannerDatabaseSetup
+                    //     }
+                    // });
+                    return res.redirect(context.env.FINAL_AUTH_URL);
                 } else {
                     return res.status(400).json({ message: 'Auth Failed' })
                 }
-                // return res.redirect(context.env.FINAL_AUTH_URL);
             } catch (err) {
                 console.log('routeOAuth ERROR: ', err);
                 res.status(500).json({ message: 'Auth Failed' });
