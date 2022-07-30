@@ -21,9 +21,9 @@ export const hendleStart: TTelegramMessageRouter = async (telegram, { msg, match
                 }
                 telegram.bot.sendMessage(msg.chat.id, 'Log you in...');
                 const newTelegramUser = await telegram.db.telegramIntegration.insert({
-                    userId: String(msg.chat.id),
-                    firstName: msg.chat.first_name,
-                    lastName: msg.chat.last_name,
+                    user_id: String(msg.chat.id),
+                    first_name: msg.chat.first_name,
+                    last_name: msg.chat.last_name,
                     username: msg.chat.username
                 });
                 console.log('New Telegram User: ', newTelegramUser);
