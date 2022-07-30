@@ -47,14 +47,31 @@ export class Notion extends NotionApi {
         };
     }
 
-    addToInbox(text: string, typeId: string) {
+    async addToInbox(text: string, typeId: string) {
         if (!this.integration.planner_database_id) {
             return undefined;
         }
-        const typeProperty = {
-
+        const itemTypesProperty = await this.getPlannerItemTypes();
+        if (!itemTypesProperty) {
+            return undefined;
         }
-        this.addItemToDatabase(this.integration.planner_database_id, typeProperty)
+        const typeProperty = {
+            title: {
+                title: [
+                    {
+                        text: {
+                            content: text
+                        }
+                    }
+                ]
+            },
+            [itemTypesProperty.id]: {
+                select: {
+                    id: typeId
+                }
+            }
+        }
+        return this.addItemToDatabase(this.integration.planner_database_id, typeProperty)
     }
 
     updatePlannerDatabaseId(databaseId: string) {

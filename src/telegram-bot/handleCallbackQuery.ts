@@ -3,7 +3,7 @@ import { Notion } from './../services/notion';
 
 export const handleCallbackQuery: TTelegramCallbackQueryRouter = async (telegram, { callbackQuery }) => {
   try {
-    const parseRegExp = /(.*?):(.*)/gm;
+    const parseRegExp = /type=(.*?)text=(.*)/gm;
     if (!callbackQuery.data) {
       return;
     }
@@ -19,25 +19,13 @@ export const handleCallbackQuery: TTelegramCallbackQueryRouter = async (telegram
     if (!isNotionLoaded) {
       return;
     }
-    const resources = await telegram.notion!.listAllRecources();
-    console.log(resources);
-    // const res = await notion.pages.create({
-    //       "parent": {
-    //         "type": "database_id",
-    //         "database_id": process.env.PLANNER_ID!
-    //       },
-    //       "properties": {
-    //         "title": {
-    //           "title": [
-    //             {
-    //               "text": {
-    //                 "content": msg.text!
-    //               }
-    //             }
-    //           ]
-    //         }
-    //       }
-    //     })
+    const result = await telegram.notion!.addToInbox(itemText, itemType);
+    console.log(result);
+    if (result) {
+      telegram.bot.sendMessage(callbackQuery.from.id, telegram.language.say('addedToPlanner'));
+    } else {
+      telegram.bot.sendMessage(callbackQuery.from.id, telegram.language.say('errorMessage'));
+    }
   } catch (err) {
     console.log('handleCallbackQuery ERROR: ', err);
   }

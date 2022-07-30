@@ -10,28 +10,37 @@ export const hendleMessage: TTelegramMessageRouter = async (telegram, { msg }) =
     if (!isNotionLoaded) {
       return;
     }
-    
-    const replyMarkupKeyboard = [
-      [
-        {
-          text: '📍 task',
-          callback_data: `task:${msg.text}`
-        },
-        {
-          text: '💡 idea',
-          callback_data: `idea:${msg.text}`
-        }
-      ], [
-        {
-          text: '📚 book',
-          callback_data: `book:${msg.text}`
-        },
-        {
-          text: '🎦 movie',
-          callback_data: `movie:${msg.text}`
-        }
-      ],
-    ]
+
+    const itemTypes = await telegram.notion!.getPlannerItemTypes();
+    if (!itemTypes) {
+      telegram.bot.sendMessage(msg.chat.id, telegram.language.say('noNotionItemTypes'));
+      return;
+    }
+    const buttons = itemTypes.values.map(value => ({
+      text: value.name,
+      callback_data: `type=${value.id}text=${msg.text}`
+    }))
+    // const replyMarkupKeyboard = [
+    //   [
+    //     {
+    //       text: '📍 task',
+    //       callback_data: `task:${msg.text}`
+    //     },
+    //     {
+    //       text: '💡 idea',
+    //       callback_data: `idea:${msg.text}`
+    //     }
+    //   ], [
+    //     {
+    //       text: '📚 book',
+    //       callback_data: `book:${msg.text}`
+    //     },
+    //     {
+    //       text: '🎦 movie',
+    //       callback_data: `movie:${msg.text}`
+    //     }
+    //   ],
+    // ]
     if (!msg.text) {
       telegram.bot.sendMessage(msg.chat.id, `Don't get what you mean...\nplease use text message to add items to the inbox`);
       return;
@@ -40,7 +49,7 @@ export const hendleMessage: TTelegramMessageRouter = async (telegram, { msg }) =
       parse_mode: 'Markdown'
     });
     await telegram.bot.editMessageReplyMarkup({
-      inline_keyboard: replyMarkupKeyboard
+      inline_keyboard: [buttons]
     }, {
       chat_id: replyMessage.chat.id,
       message_id: replyMessage.message_id
