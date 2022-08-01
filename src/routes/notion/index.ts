@@ -93,7 +93,7 @@ export const notionRoute: TAppRouter = (context) => {
                     return res.json({ success: true, data: newItem });
                 }
                 console.log('notion/addItemToInbox ERROR: can not match the type');
-                return res.json({ success: false, message: 'can not match the type' });
+                return res.status(400).json({ success: false, message: 'can not match the type' });
             } catch (err) {
                 console.log('addItemToInbox ERROR: ', err);
                 res.status(500).json({ message: 'addItemToInbox Failed' });
