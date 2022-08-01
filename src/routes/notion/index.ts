@@ -85,20 +85,15 @@ export const notionRoute: TAppRouter = (context) => {
         })
         .post('/addItemToInbox', async (req, res) => {
             try {
-                const { text } = req.body;
+                const { text, type } = req.body;
                 const notion = new Notion({ integration: req.notionIntegration, db: context.db });
-                const newItem = await notion.addItemToDatabase(process.env.PLANNER_ID!, {
-                    "title": {
-                        "title": [
-                            {
-                                "text": {
-                                    "content": text!
-                                }
-                            }
-                        ]
-                    }
-                });
-                res.json({ success: true, data: newItem });
+                const typeElement = req.notionIntegration.planer_item_types?.values.find(value => value.name === type);
+                if (typeElement) {
+                    const newItem = await notion.addToInbox(text, typeElement.id);
+                    return res.json({ success: true, data: newItem });
+                }
+                console.log('notion/addItemToInbox ERROR: can not match the type');
+                return res.json({ success: false, message: 'can not match the type' });
             } catch (err) {
                 console.log('addItemToInbox ERROR: ', err);
                 res.status(500).json({ message: 'addItemToInbox Failed' });

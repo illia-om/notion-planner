@@ -19,28 +19,7 @@ export const hendleMessage: TTelegramMessageRouter = async (telegram, { msg }) =
     const buttons = itemTypes.values.map(value => ({
       text: value.name,
       callback_data: `type=${value.id}text=${msg.text}`
-    }))
-    // const replyMarkupKeyboard = [
-    //   [
-    //     {
-    //       text: '📍 task',
-    //       callback_data: `task:${msg.text}`
-    //     },
-    //     {
-    //       text: '💡 idea',
-    //       callback_data: `idea:${msg.text}`
-    //     }
-    //   ], [
-    //     {
-    //       text: '📚 book',
-    //       callback_data: `book:${msg.text}`
-    //     },
-    //     {
-    //       text: '🎦 movie',
-    //       callback_data: `movie:${msg.text}`
-    //     }
-    //   ],
-    // ]
+    }));
     if (!msg.text) {
       telegram.bot.sendMessage(msg.chat.id, `Don't get what you mean...\nplease use text message to add items to the inbox`);
       return;
