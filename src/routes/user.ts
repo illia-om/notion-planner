@@ -40,7 +40,7 @@ export const routeUser: TAppRouter = (context) => {
         })
         .get('/notionIntegratoin', loadNotionIntegration(context), async (req, res) => {
             const notion = new Notion({ integration: req.notionIntegration, db: context.db });
-            if(!req.notionIntegration.planner_database_id) {
+            if (!req.notionIntegration.planner_database_id) {
                 return res.json({
                     success: true,
                     notionIntegration: {
@@ -59,9 +59,21 @@ export const routeUser: TAppRouter = (context) => {
                     workspace_icon: req.notionIntegration.workspace_icon,
                     planner: {
                         databaseName: plannerTitle,
-                        types: req.notionIntegration.planer_item_types?.values.map(value => value.name) 
+                        types: req.notionIntegration.planer_item_types?.values.map(value => value.name)
                     }
                 }
+            });
+        })
+        .get('/types', loadNotionIntegration(context), async (req, res) => {
+            if (req.notionIntegration.planer_item_types) {
+                return res.json({
+                    success: true,
+                    types: req.notionIntegration.planer_item_types?.values.map(value => value.name)
+                });
+            }
+            return res.json({
+                success: false,
+                message: 'notion integration does not contain types'
             });
         })
         .get('/:username', async (req, res) => {
