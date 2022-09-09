@@ -53,15 +53,13 @@ export class Notion extends NotionApi {
                 return undefined;
             }
             const titleProperty = {
-                title: {
-                    title: [
-                        {
-                            text: {
-                                content: text
-                            }
+                title: [
+                    {
+                        text: {
+                            content: text
                         }
-                    ]
-                }
+                    }
+                ]
             }
             if (typeId) {
                 const itemTypesProperty = await this.getPlannerItemTypes();
