@@ -47,16 +47,12 @@ export class Notion extends NotionApi {
         };
     }
 
-    async addToInbox(text: string, typeId: string) {
+    async addToInbox(text: string, typeId?: string) {
         try {
             if (!this.integration.planner_database_id) {
                 return undefined;
             }
-            const itemTypesProperty = await this.getPlannerItemTypes();
-            if (!itemTypesProperty) {
-                return undefined;
-            }
-            const typeProperty = {
+            const titleProperty = {
                 title: {
                     title: [
                         {
@@ -65,15 +61,29 @@ export class Notion extends NotionApi {
                             }
                         }
                     ]
-                },
-                [itemTypesProperty.id]: {
+                }
+            }
+            if (typeId) {
+                const itemTypesProperty = await this.getPlannerItemTypes();
+                if (!itemTypesProperty) {
+                    return undefined;
+                }
+                const typeProperty = {
                     select: {
                         id: typeId
                     }
                 }
+                const itemProperties = {
+                    title: titleProperty,
+                    [itemTypesProperty.id]: typeProperty
+                }
+                return this.addItemToDatabase(this.integration.planner_database_id, itemProperties)
             }
-            return this.addItemToDatabase(this.integration.planner_database_id, typeProperty)
-        } catch(err) {
+            const itemProperties = {
+                title: titleProperty
+            }
+            return this.addItemToDatabase(this.integration.planner_database_id, itemProperties)
+        } catch (err) {
             console.log('Notion addToInbox ERROR: ', err);
         }
     }

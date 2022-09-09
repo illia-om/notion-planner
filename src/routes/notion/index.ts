@@ -91,6 +91,9 @@ export const notionRoute: TAppRouter = (context) => {
                 if (typeElement) {
                     const newItem = await notion.addToInbox(text, typeElement.id);
                     return res.json({ success: true, data: newItem });
+                } else {
+                    const newItem = await notion.addToInbox(text);
+                    return res.json({ success: true, data: newItem });
                 }
                 console.log('notion/addItemToInbox ERROR: can not match the type');
                 return res.status(400).json({ success: false, message: 'can not match the type' });
